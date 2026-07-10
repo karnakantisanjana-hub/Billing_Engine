@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard | BillingEngine</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Cormorant+Garamond:wght@500;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+
+<style>
+    *{ margin:0; padding:0; box-sizing:border-box; font-family:'Poppins',sans-serif; }
+
+    :root{
+        --bg:#fdf7f0;
+        --card:#F4ECE2;
+        --gold:#B89A69;
+        --gold-dark:#9A7B49;
+        --teal:#2F6B62;
+        --text:#2B2927;
+        --muted:#8A8478;
+        --green:#3F9142;
+        --amber:#B8792B;
+        --red:#C0432A;
+
+        --shadow1:12px 12px 25px rgba(0,0,0,.07);
+        --shadow2:-10px -10px 20px rgba(255,255,255,.85);
+    }
+
+    body{
+        background:var(--bg);
+        color:var(--text);
+        min-height:100vh;
+        padding:40px;
+    }
+
+    .header{
+        display:flex;
+        justify-content:space-between;
+        align-items:flex-start;
+        margin-bottom:36px;
+    }
+
+    .header h1{
+        font-size:38px;
+        font-family:'Cormorant Garamond',serif;
+        font-weight:700;
+        color:var(--gold-dark);
+    }
+
+    .header p{
+        color:var(--muted);
+        font-size:13px;
+        margin-top:8px;
+    }
+
+    .header p b{ color:var(--text); }
+
+    .btn-signout{
+        padding:12px 24px;
+        border-radius:50px;
+        background:#F4ECE2;
+        color:var(--red);
+        border:none;
+        font-size:13px;
+        font-weight:600;
+        cursor:pointer;
+        text-decoration:none;
+        display:inline-flex;
+        align-items:center;
+        box-shadow:var(--shadow1), var(--shadow2);
+    }
+
+    .grid{
+        display:grid;
+        grid-template-columns:1fr 1fr;
+        gap:28px;
+        margin-bottom:28px;
+    }
+
+    .glass-panel{
+        background:rgba(255,255,255,.35);
+        backdrop-filter:blur(18px);
+        border:1px solid rgba(255,255,255,.6);
+        border-radius:24px;
+        padding:24px;
+        box-shadow:var(--shadow1), var(--shadow2);
+    }
+
+    .glass-panel h2{
+        font-size:16px;
+        font-weight:600;
+        margin-bottom:16px;
+        color:var(--text);
+    }
+
+    label{
+        display:block;
+        font-size:12px;
+        color:var(--gold-dark);
+        font-weight:600;
+        margin-bottom:8px;
+    }
+
+    select, input{
+        width:100%;
+        padding:11px 14px;
+        border-radius:12px;
+        border:none;
+        background:#F8F2EB;
+        box-shadow:inset 2px 2px 5px rgba(0,0,0,.05), inset -2px -2px 5px white;
+        color:var(--text);
+        font-size:13px;
+        font-family:'Poppins',sans-serif;
+        margin-bottom:14px;
+        outline:none;
+    }
+
+    .status-toggle{
+        display:flex;
+        gap:10px;
+        margin-bottom:24px;
+    }
+
+    .status-toggle button{
+        flex:1;
+        padding:13px;
+        border-radius:14px;
+        border:none;
+        background:#F8F2EB;
+        box-shadow:inset 2px 2px 5px rgba(0,0,0,.05), inset -2px -2px 5px white;
+        color:var(--muted);
+        font-weight:600;
+        font-size:12px;
+        letter-spacing:0.5px;
+        cursor:pointer;
+    }
+
+    .status-toggle button.active{
+        color:#fff;
+        background:var(--gold);
+        box-shadow:var(--shadow1);
+    }
+
+    .btn-primary{
+        width:100%;
+        padding:16px;
+        border:none;
+        border-radius:16px;
+        background:var(--gold);
+        color:#fff;
+        font-weight:600;
+        font-size:14px;
+        cursor:pointer;
+        transition:.3s;
+    }
+
+    .btn-primary:hover{
+        background:var(--gold-dark);
+        transform:translateY(-2px);
+    }
+
+    .plan-item{
+        display:flex;
+        justify-content:space-between;
+        align-items:center;
+        padding:18px 20px;
+        background:#F8F2EB;
+        border-radius:16px;
+        margin-bottom:12px;
+        box-shadow:inset 2px 2px 5px rgba(0,0,0,.04), inset -2px -2px 5px white;
+    }
+
+    .plan-item:last-child{ margin-bottom:0; }
+
+    .plan-item .name{ font-weight:600; font-size:14px; color:var(--text); }
+    .plan-item .meta{ color:var(--muted); font-size:12px; margin-top:4px; }
+    .plan-item .price{ color:var(--gold-dark); font-weight:700; font-size:16px; font-family:'Cormorant Garamond',serif; }
+
+    .table-panel{
+        background:rgba(255,255,255,.35);
+        backdrop-filter:blur(18px);
+        border:1px solid rgba(255,255,255,.6);
+        border-radius:28px;
+        padding:32px;
+        box-shadow:var(--shadow1), var(--shadow2);
+        margin-bottom:28px;
+    }
+
+    .table-head{
+        display:flex;
+        justify-content:space-between;
+        align-items:center;
+        margin-bottom:22px;
+    }
+
+    .table-head h2{ font-size:17px; font-weight:600; }
+
+    .btn-refresh{
+        padding:11px 22px;
+        border-radius:50px;
+        background:#F4ECE2;
+        color:var(--gold-dark);
+        border:none;
+        font-size:12px;
+        font-weight:600;
+        cursor:pointer;
+        box-shadow:var(--shadow1), var(--shadow2);
+    }
+
+    table{ width:100%; border-collapse:collapse; }
+
+    thead th{
+        text-align:left;
+        font-size:11px;
+        text-transform:uppercase;
+        letter-spacing:0.5px;
+        color:var(--muted);
+        padding:12px;
+        border-bottom:1px solid rgba(184,154,105,0.25);
+    }
+
+    tbody td{
+        padding:16px 12px;
+        font-size:13px;
+        border-bottom:1px solid rgba(184,154,105,0.15);
+        vertical-align:middle;
+    }
+
+    tbody tr:last-child td{ border-bottom:none; }
+
+    .badge{
+        display:inline-block;
+        padding:6px 14px;
+        border-radius:20px;
+        font-size:11px;
+        font-weight:600;
+        text-transform:uppercase;
+        letter-spacing:0.3px;
+    }
+
+    .badge-trial{ background:#EFE6D8; color:var(--gold-dark); }
+    .badge-active{ background:#E3F0E3; color:var(--green); }
+    .badge-past_due{ background:#F8EAD6; color:var(--amber); }
+    .badge-cancelled{ background:#FBE6E1; color:var(--red); }
+
+    .action-btn{
+        padding:7px 14px;
+        border-radius:10px;
+        border:none;
+        background:#F8F2EB;
+        color:var(--gold-dark);
+        font-size:11px;
+        font-weight:600;
+        cursor:pointer;
+        margin-right:6px;
+        margin-bottom:6px;
+        box-shadow:inset 1px 1px 3px rgba(0,0,0,.04), inset -1px -1px 3px white;
+    }
+
+    .action-btn:hover{ background:var(--gold); color:#fff; }
+
+    .empty-row td{ text-align:center; color:var(--muted); padding:36px; }
+
+    .toast{
+        position:fixed;
+        bottom:28px;
+        right:28px;
+        padding:15px 22px;
+        border-radius:14px;
+        font-size:13px;
+        font-weight:600;
+        color:#fff;
+        display:none;
+        z-index:100;
+        box-shadow:0 10px 30px rgba(0,0,0,.15);
+    }
+
+    .toast.show{ display:block; }
+    .toast.success{ background:var(--green); }
+    .toast.error{ background:var(--red); }
+
+    .stats-grid{
+        display:grid;
+        grid-template-columns:repeat(4, 1fr);
+        gap:20px;
+        margin-bottom:28px;
+    }
+
+    @media(max-width:900px){
+        .grid{ grid-template-columns:1fr; }
+        body{ padding:20px; }
+        .stats-grid{ grid-template-columns:repeat(2, 1fr); }
+    }
+</style>
+</head>
+<body>
+
+<div class="header">
+    <div>
+        <h1 data-i18n="title">Recurring Revenue &amp; Subscription Engine</h1>
+        <p>Welcome to the Billing Dashboard</p>
+    </div>
+    <div class="header-actions" style="display:flex; align-items:center; gap:14px;">
+        <a href="/profile" class="btn-refresh" style="text-decoration:none;">👤 My Profile</a>
+        <select id="langSelect" onchange="applyLanguage(this.value)" style="width:auto; margin-bottom:0; padding:10px 16px; font-size:13px; cursor:pointer;">
+            <option value="en">English</option>
+            <option value="hi">हिन्दी</option>
+            <option value="te">తెలుగు</option>
+            <option value="ta">தமிழ்</option>
+        </select>
+        <a href="/logout" class="btn-signout" data-i18n="signout">Sign Out</a>
+    </div>
+</div>
+
+<div class="stats-grid">
+
+    <div class="glass-panel" style="padding:24px;">
+        <div style="font-size:11px; text-transform:uppercase; letter-spacing:0.5px; color:var(--muted); font-weight:600; margin-bottom:12px;" data-i18n="stat_active_subs">Active Subscriptions</div>
+        <div style="font-size:32px; font-weight:700; font-family:'Cormorant Garamond',serif; color:var(--gold-dark);" id="statActiveSubs">0</div>
+    </div>
+
+    <div class="glass-panel" style="padding:24px;">
+        <div style="font-size:11px; text-transform:uppercase; letter-spacing:0.5px; color:var(--muted); font-weight:600; margin-bottom:12px;" data-i18n="stat_mrr">Monthly Recurring Revenue</div>
+        <div style="font-size:32px; font-weight:700; font-family:'Cormorant Garamond',serif; color:var(--teal);">$<span id="statMrr">0.00</span></div>
+    </div>
+
+    <div class="glass-panel" style="padding:24px;">
+        <div style="font-size:11px; text-transform:uppercase; letter-spacing:0.5px; color:var(--muted); font-weight:600; margin-bottom:12px;" data-i18n="stat_invoices_due">Invoices Due</div>
+        <div style="font-size:32px; font-weight:700; font-family:'Cormorant Garamond',serif; color:var(--amber);" id="statInvoicesDue">0</div>
+    </div>
+
+    <div class="glass-panel" style="padding:24px;">
+        <div style="font-size:11px; text-transform:uppercase; letter-spacing:0.5px; color:var(--muted); font-weight:600; margin-bottom:12px;" data-i18n="stat_payments">Payments This Month</div>
+        <div style="font-size:32px; font-weight:700; font-family:'Cormorant Garamond',serif; color:var(--green);">$<span id="statPayments">0.00</span></div>
+    </div>
+
+</div>
+
+<div class="grid">
+
+    <div class="glass-panel">
+        <h2 data-i18n="create_subscriber">Create Subscriber</h2>
+
+        <label data-i18n="select_customer">Select Customer</label>
+        <select id="customerSelect">
+            <option value="">-- Choose Customer --</option>
+        </select>
+
+        <label data-i18n="select_plan">Select Billing Plan</label>
+        <select id="planSelect">
+            <option value="">-- Choose Plan --</option>
+        </select>
+
+        <label data-i18n="initial_status">Initial Status</label>
+        <div class="status-toggle">
+            <button type="button" class="active" data-status="trial" onclick="selectStatus(this)" data-i18n="trial_btn">TRIAL</button>
+            <button type="button" data-status="active" onclick="selectStatus(this)" data-i18n="active_btn">ACTIVE</button>
+        </div>
+
+        <button class="btn-primary" onclick="createSubscription()" data-i18n="create_sub_btn">+ Create Subscription</button>
+    </div>
+
+    <div class="glass-panel">
+        <h2 data-i18n="available_plans">Available Billing Plans</h2>
+        <div id="planList">
+            <p style="color:var(--muted); font-size:13px;">Loading plans…</p>
+        </div>
+    </div>
+
+</div>
+
+<div class="table-panel">
+    <div class="table-head">
+        <h2 data-i18n="customer_subs">Customer Subscriptions (State Machine Controller)</h2>
+        <button class="btn-refresh" onclick="loadSubscriptions()" data-i18n="refresh">Refresh List</button>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th data-i18n="th_id">ID</th>
+                <th data-i18n="th_customer">Customer</th>
+                <th data-i18n="th_plan">Plan</th>
+                <th data-i18n="th_status">Current Status</th>
+                <th data-i18n="th_updated">Status Updated</th>
+                <th data-i18n="th_transition">Transition</th>
+            </tr>
+        </thead>
+        <tbody id="subscriptionsBody">
+            <tr class="empty-row"><td colspan="6">Loading subscriptions…</td></tr>
+        </tbody>
+    </table>
+</div>
+
+<div class="glass-panel" style="margin-bottom:28px;">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+        <h2 style="margin-bottom:0;" data-i18n="revenue_overview">Revenue Overview</h2>
+        <button class="btn-refresh" onclick="loadRevenue()">Refresh</button>
+    </div>
+    <div style="font-size:36px; font-weight:700; font-family:'Cormorant Garamond',serif; color:var(--gold-dark); margin-bottom:20px;">
+        $<span id="totalMrr">0.00</span> <span style="font-size:14px; color:var(--muted); font-family:'Poppins',sans-serif; font-weight:500;">/ month (MRR)</span>
+    </div>
+    <div style="height:180px;">
+        <canvas id="revenueChart"></canvas>
+    </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const chartBackgroundPlugin = {
+    id: 'customCanvasBackgroundColor',
+    beforeDraw: (chart) => {
+        const { ctx, width, height } = chart;
+        ctx.save();
+        ctx.globalCompositeOperation = 'destination-over';
+        ctx.fillStyle = '#F8F2EB';
+        ctx.roundRect(0, 0, width, height, 12);
+        ctx.fill();
+        ctx.restore();
+    }
+};
+
+const translations = {
+    en: {
+        title: "Recurring Revenue &amp; Subscription Engine",
+        signout: "Sign Out",
+        stat_active_subs: "Active Subscriptions",
+        stat_mrr: "Monthly Recurring Revenue",
+        stat_invoices_due: "Invoices Due",
+        stat_payments: "Payments This Month",
+        create_subscriber: "Create Subscriber",
+        select_customer: "Select Customer",
+        select_plan: "Select Billing Plan",
+        initial_status: "Initial Status",
+        trial_btn: "TRIAL",
+        active_btn: "ACTIVE",
+        create_sub_btn: "+ Create Subscription",
+        available_plans: "Available Billing Plans",
+        customer_subs: "Customer Subscriptions (State Machine Controller)",
+        refresh: "Refresh List",
+        th_id: "ID", th_customer: "Customer", th_plan: "Plan",
+        th_status: "Current Status", th_updated: "Status Updated", th_transition: "Transition",
+        revenue_overview: "Revenue Overview"
+    },
+    hi: {
+        title: "आवर्ती राजस्व और सदस्यता इंजन",
+        signout: "साइन आउट",
+        stat_active_subs: "सक्रिय सदस्यताएँ",
+        stat_mrr: "मासिक आवर्ती राजस्व",
+        stat_invoices_due: "बकाया चालान",
+        stat_payments: "इस माह का भुगतान",
+        create_subscriber: "सदस्य बनाएँ",
+        select_customer: "ग्राहक चुनें",
+        select_plan: "बिलिंग योजना चुनें",
+        initial_status: "प्रारंभिक स्थिति",
+        trial_btn: "ट्रायल",
+        active_btn: "सक्रिय",
+        create_sub_btn: "+ सदस्यता बनाएँ",
+        available_plans: "उपलब्ध बिलिंग योजनाएँ",
+        customer_subs: "ग्राहक सदस्यताएँ (स्टेट मशीन नियंत्रक)",
+        refresh: "सूची ताज़ा करें",
+        th_id: "आईडी", th_customer: "ग्राहक", th_plan: "योजना",
+        th_status: "वर्तमान स्थिति", th_updated: "स्थिति अद्यतन", th_transition: "परिवर्तन",
+        revenue_overview: "राजस्व अवलोकन"
+    },
+    te: {
+        title: "పునరావృత ఆదాయం & సబ్‌స్క్రిప్షన్ ఇంజిన్",
+        signout: "సైన్ అవుట్",
+        stat_active_subs: "క్రియాశీల సబ్‌స్క్రిప్షన్‌లు",
+        stat_mrr: "మాసిక పునరావృత ఆదాయం",
+        stat_invoices_due: "బకాయి ఇన్‌వాయిస్‌లు",
+        stat_payments: "ఈ నెల చెల్లింపులు",
+        create_subscriber: "సబ్‌స్క్రైబర్‌ను సృష్టించండి",
+        select_customer: "కస్టమర్‌ను ఎంచుకోండి",
+        select_plan: "బిల్లింగ్ ప్లాన్ ఎంచుకోండి",
+        initial_status: "ప్రారంభ స్థితి",
+        trial_btn: "ట్రయల్",
+        active_btn: "క్రియాశీలం",
+        create_sub_btn: "+ సబ్‌స్క్రిప్షన్ సృష్టించండి",
+        available_plans: "అందుబాటులో ఉన్న బిల్లింగ్ ప్లాన్‌లు",
+        customer_subs: "కస్టమర్ సబ్‌స్క్రిప్షన్‌లు (స్టేట్ మెషిన్ కంట్రోలర్)",
+        refresh: "జాబితాను రిఫ్రెష్ చేయండి",
+        th_id: "ఐడీ", th_customer: "కస్టమర్", th_plan: "ప్లాన్",
+        th_status: "ప్రస్తుత స్థితి", th_updated: "స్థితి నవీకరణ", th_transition: "మార్పు",
+        revenue_overview: "ఆదాయ అవలోకనం"
+    },
+    ta: {
+        title: "தொடர்ச்சியான வருவாய் & சந்தா என்ஜின்",
+        signout: "வெளியேறு",
+        stat_active_subs: "செயலில் உள்ள சந்தாக்கள்",
+        stat_mrr: "மாதாந்திர தொடர் வருவாய்",
+        stat_invoices_due: "நிலுவை விலைப்பட்டியல்கள்",
+        stat_payments: "இந்த மாத பணம் செலுத்துதல்",
+        create_subscriber: "சந்தாதாரரை உருவாக்கு",
+        select_customer: "வாடிக்கையாளரைத் தேர்ந்தெடுக்கவும்",
+        select_plan: "பில்லிங் திட்டத்தைத் தேர்ந்தெடுக்கவும்",
+        initial_status: "ஆரம்ப நிலை",
+        trial_btn: "சோதனை",
+        active_btn: "செயலில்",
+        create_sub_btn: "+ சந்தா உருவாக்கு",
+        available_plans: "கிடைக்கும் பில்லிங் திட்டங்கள்",
+        customer_subs: "வாடிக்கையாளர் சந்தாக்கள் (ஸ்டேட் மெஷின் கன்ட்ரோலர்)",
+        refresh: "பட்டியலைப் புதுப்பிக்கவும்",
+        th_id: "ஐடி", th_customer: "வாடிக்கையாளர்", th_plan: "திட்டம்",
+        th_status: "தற்போதைய நிலை", th_updated: "நிலை புதுப்பிப்பு", th_transition: "மாற்றம்",
+        revenue_overview: "வருவாய் மேலோட்டம்"
+    }
+};
+
+function applyLanguage(lang){
+    const dict = translations[lang] || translations.en;
+    document.querySelectorAll("[data-i18n]").forEach(el => {
+        const key = el.getAttribute("data-i18n");
+        if(dict[key]){
+            el.innerHTML = dict[key];
+        }
+    });
+    localStorage.setItem("dashboardLang", lang);
+    document.getElementById("langSelect").value = lang;
+}
+
+let selectedStatus = "trial";
+let revenueChartInstance = null;
+
+function selectStatus(btn){
+    document.querySelectorAll(".status-toggle button").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    selectedStatus = btn.dataset.status;
+}
+
+function showToast(message, type="success"){
+    const toast = document.getElementById("toast");
+    toast.textContent = message;
+    toast.className = "toast show " + type;
+    setTimeout(() => { toast.className = "toast"; }, 3000);
+}
+
+async function loadCustomers(){
+    const res = await fetch("/api/customers");
+    const data = await res.json();
+    const select = document.getElementById("customerSelect");
+    select.innerHTML = '<option value="">-- Choose Customer --</option>';
+    data.forEach(c => {
+        const opt = document.createElement("option");
+        opt.value = c.id;
+        opt.textContent = c.name + " (" + c.email + ")";
+        select.appendChild(opt);
+    });
+}
+
+async function loadPlans(){
+    const res = await fetch("/api/plans");
+    const data = await res.json();
+
+    const select = document.getElementById("planSelect");
+    select.innerHTML = '<option value="">-- Choose Plan --</option>';
+
+    const list = document.getElementById("planList");
+    list.innerHTML = "";
+
+    if(data.length === 0){
+        list.innerHTML = '<p style="color:var(--muted); font-size:13px;">No plans yet.</p>';
+    }
+
+    data.forEach(p => {
+        const opt = document.createElement("option");
+        opt.value = p.id;
+        opt.textContent = p.name + " — $" + p.price;
+        select.appendChild(opt);
+
+        const item = document.createElement("div");
+        item.className = "plan-item";
+        item.innerHTML = `
+            <div>
+                <div class="name">${p.name}</div>
+                <div class="meta">Interval: ${p.billing_interval} | Trial: ${p.trial_days} days</div>
+            </div>
+            <div class="price">$${p.price.toFixed(2)}</div>
+        `;
+        list.appendChild(item);
+    });
+}
+
+async function createSubscription(){
+    const customer_id = document.getElementById("customerSelect").value;
+    const plan_id = document.getElementById("planSelect").value;
+
+    if(!customer_id || !plan_id){
+        showToast("Please select a customer and a plan", "error");
+        return;
+    }
+
+    const res = await fetch("/api/subscriptions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            customer_id: parseInt(customer_id),
+            plan_id: parseInt(plan_id),
+            status: selectedStatus
+        })
+    });
+
+    const data = await res.json();
+
+    if(!res.ok){
+        showToast(data.detail || "Failed to create subscription", "error");
+        return;
+    }
+
+    showToast("Subscription created successfully");
+    loadSubscriptions();
+}
+
+function formatDate(iso){
+    if(!iso) return "—";
+    const d = new Date(iso);
+    return d.toLocaleString();
+}
+
+function getTransitionLabel(currentStatus, targetStatus){
+    if(currentStatus === "paused" && targetStatus === "active") return "RESUME";
+    if(currentStatus === "active" && targetStatus === "paused") return "PAUSE";
+    return targetStatus.toUpperCase();
+}
+
+async function loadSubscriptions(){
+    const res = await fetch("/api/subscriptions");
+    const data = await res.json();
+
+    const body = document.getElementById("subscriptionsBody");
+    body.innerHTML = "";
+
+    if(data.length === 0){
+        body.innerHTML = '<tr class="empty-row"><td colspan="6">No subscriptions yet. Create one above to get started.</td></tr>';
+        return;
+    }
+
+    data.forEach(sub => {
+        const tr = document.createElement("tr");
+
+        const transitionButtons = sub.valid_next_states.length > 0
+            ? sub.valid_next_states.map(s =>
+                `<button class="action-btn" onclick="updateStatus(${sub.id}, '${s}')">→ ${getTransitionLabel(sub.status, s)}</button>`
+              ).join("")
+            : '<span style="color:var(--muted); font-size:12px;">Terminal state</span>';
+
+        tr.innerHTML = `
+            <td>#${sub.id}</td>
+            <td>${sub.customer_name}</td>
+            <td>${sub.plan_name}</td>
+            <td><span class="badge badge-${sub.status}">${sub.status}</span></td>
+            <td>${formatDate(sub.status_updated_at)}</td>
+            <td>${transitionButtons}</td>
+        `;
+        body.appendChild(tr);
+    });
+}
+
+async function updateStatus(id, newStatus){
+    const res = await fetch(`/api/subscriptions/${id}/status`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: newStatus })
+    });
+
+    const data = await res.json();
+
+    if(!res.ok){
+        showToast(data.detail || "Transition failed", "error");
+        return;
+    }
+
+    showToast(`Status updated to ${newStatus}`);
+    loadSubscriptions();
+}
+
+async function loadRevenue(){
+    const res = await fetch("/api/revenue");
+    const data = await res.json();
+
+    document.getElementById("totalMrr").textContent = data.total_mrr.toFixed(2);
+
+    const labels = data.by_plan.map(p => p.plan_name);
+    const values = data.by_plan.map(p => p.revenue);
+
+    const themeColors = ["#B89A69", "#2F6B62", "#B8792B", "#3F9142", "#9A7B49", "#4F8A7D"];
+    const barColors = labels.length
+        ? labels.map((_, i) => themeColors[i % themeColors.length])
+        : ["#B89A69"];
+
+    const ctx = document.getElementById("revenueChart").getContext("2d");
+
+    if(revenueChartInstance){
+        revenueChartInstance.destroy();
+    }
+
+    revenueChartInstance = new Chart(ctx, {
+        type: "bar",
+        data: {
+            labels: labels.length ? labels : ["No active revenue yet"],
+            datasets: [{
+                label: "Revenue ($)",
+                data: values.length ? values : [0],
+                backgroundColor: barColors,
+                borderRadius: 8,
+                maxBarThickness: 60
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            layout: { padding: 12 },
+            plugins: { legend: { display: false } },
+            scales: {
+                y: { beginAtZero: true, ticks: { color: "#8A8478" }, grid: { color: "rgba(184,154,105,0.1)" } },
+                x: { ticks: { color: "#2B2927" }, grid: { display: false } }
+            }
+        },
+        plugins: [chartBackgroundPlugin]
+    });
+}
+async function loadDashboardSummary(){
+    const res = await fetch("/api/dashboard-summary");
+    const data = await res.json();
+
+    document.getElementById("statActiveSubs").textContent = data.active_subscriptions;
+    document.getElementById("statMrr").textContent = data.mrr.toFixed(2);
+    document.getElementById("statInvoicesDue").textContent = data.invoices_due;
+    document.getElementById("statPayments").textContent = data.payments_this_month.toFixed(2);
+}
+
+// Init
+loadCustomers();
+loadPlans();
+loadSubscriptions();
+loadRevenue();
+loadDashboardSummary();
+applyLanguage(localStorage.getItem("dashboardLang") || "en");
+</script>
+
+</body>
+</html>

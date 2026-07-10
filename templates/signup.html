@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Sign Up | BillingEngine</title>
+
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&family=Cormorant+Garamond:wght@500;700&display=swap" rel="stylesheet">
+
+</head>
+
+<body class="auth-body">
+
+<div class="bg-circle one"></div>
+<div class="bg-circle two"></div>
+<div class="bg-circle three"></div>
+
+<div class="top-nav">
+    <div class="brand">BillingEngine</div>
+    <a href="/signin" class="login-link">Have an account? <span>Sign In</span></a>
+</div>
+
+<div class="signup-wrapper">
+
+    <div class="glass-card">
+
+        <div class="icon-box">✦</div>
+
+        <h1>Create <span>Account</span></h1>
+        <p>Set up billing access in a few seconds.</p>
+
+        {% if error %}
+        <div class="error-box">{{ error }}</div>
+        {% endif %}
+
+        <form id="signupForm"></form>
+
+            <div class="input-box">
+                <input type="text" name="username" placeholder="Username" required>
+            </div>
+
+            <div class="input-box">
+                <input type="email" name="email" placeholder="Email Address" required>
+            </div>
+
+            <div class="input-box">
+                <input type="password" name="password" placeholder="Password" required>
+            </div>
+
+            <div class="input-box">
+                <input type="password" name="confirm_password" placeholder="Confirm Password" required>
+            </div>
+
+            <button class="signup-btn" type="submit">Create Account</button>
+
+        </form>
+
+        <p class="secure">Already have an account? <a href="/signin" style="color:#B89A69; font-weight:600;">Sign In</a></p>
+
+    </div>
+
+</div>
+<script>
+document.getElementById("signupForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const username = document.querySelector('input[name="username"]').value;
+    const email = document.querySelector('input[name="email"]').value;
+    const password = document.querySelector('input[name="password"]').value;
+    const confirm = document.querySelector('input[name="confirm_password"]').value;
+
+    if (password !== confirm) {
+        alert("Passwords do not match.");
+        return;
+    }
+
+    const response = await fetch("/api/v1/customer/auth/register", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            username: username,
+            email: email,
+            password: password
+        })
+    });
+
+    const data = await response.json();
+
+    if (response.ok) {
+        alert("Account created successfully!");
+        window.location.href = "/customer/login";
+    } else {
+        alert(data.detail || "Registration failed");
+    }
+});
+</script>
+</body>
+</html>

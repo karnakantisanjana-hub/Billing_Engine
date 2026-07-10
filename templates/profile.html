@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Profile | BillingEngine</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Cormorant+Garamond:wght@500;700&display=swap" rel="stylesheet">
+<style>
+    *{ margin:0; padding:0; box-sizing:border-box; font-family:'Poppins',sans-serif; }
+
+    :root{
+        --bg:#fdf7f0;
+        --gold:#B89A69;
+        --gold-dark:#9A7B49;
+        --teal:#2F6B62;
+        --text:#2B2927;
+        --muted:#8A8478;
+        --green:#3F9142;
+        --red:#C0432A;
+        --shadow1:12px 12px 25px rgba(0,0,0,.07);
+        --shadow2:-10px -10px 20px rgba(255,255,255,.85);
+    }
+
+    body{ background:var(--bg); color:var(--text); min-height:100vh; padding:40px; }
+
+    .header{
+        display:flex;
+        justify-content:space-between;
+        align-items:flex-start;
+        margin-bottom:36px;
+    }
+
+    .header h1{
+        font-size:34px;
+        font-family:'Cormorant Garamond',serif;
+        font-weight:700;
+        color:var(--gold-dark);
+    }
+
+    .btn-back{
+        padding:12px 22px;
+        border-radius:50px;
+        background:#F4ECE2;
+        color:var(--gold-dark);
+        border:none;
+        font-size:13px;
+        font-weight:600;
+        cursor:pointer;
+        text-decoration:none;
+        box-shadow:var(--shadow1), var(--shadow2);
+    }
+
+    .layout{
+        display:grid;
+        grid-template-columns:240px 1fr;
+        gap:24px;
+        max-width:900px;
+    }
+
+    .tabs{ display:flex; flex-direction:column; gap:12px; }
+
+    .tab-btn{
+        text-align:left;
+        padding:16px 20px;
+        border-radius:16px;
+        border:none;
+        background:rgba(255,255,255,.5);
+        color:var(--muted);
+        font-size:14px;
+        font-weight:600;
+        cursor:pointer;
+        box-shadow:var(--shadow1), var(--shadow2);
+    }
+
+    .tab-btn.active{ color:var(--gold-dark); background:#FFFFFF; }
+
+    .panel{
+        background:rgba(255,255,255,.5);
+        backdrop-filter:blur(18px);
+        border:1px solid rgba(255,255,255,.6);
+        border-radius:24px;
+        padding:32px;
+        box-shadow:var(--shadow1), var(--shadow2);
+    }
+
+    .panel h2{ font-size:20px; font-weight:700; margin-bottom:8px; }
+    .panel p.sub{ color:var(--muted); font-size:13px; margin-bottom:24px; }
+
+    label{
+        display:block;
+        font-size:12px;
+        color:var(--gold-dark);
+        font-weight:600;
+        margin-bottom:8px;
+        text-transform:uppercase;
+        letter-spacing:0.4px;
+    }
+
+    input{
+        width:100%;
+        padding:13px 16px;
+        border-radius:12px;
+        border:none;
+        background:#F8F2EB;
+        box-shadow:inset 2px 2px 5px rgba(0,0,0,.05), inset -2px -2px 5px white;
+        color:var(--text);
+        font-size:14px;
+        font-family:'Poppins',sans-serif;
+        margin-bottom:18px;
+        outline:none;
+    }
+
+    .btn-primary{
+        padding:14px 28px;
+        border:none;
+        border-radius:14px;
+        background:var(--gold);
+        color:#fff;
+        font-weight:600;
+        font-size:14px;
+        cursor:pointer;
+    }
+
+    .btn-primary:hover{ background:var(--gold-dark); }
+
+    .tab-content{ display:none; }
+    .tab-content.active{ display:block; }
+
+    table{ width:100%; border-collapse:collapse; margin-bottom:20px; }
+
+    thead th{
+        text-align:left;
+        font-size:11px;
+        text-transform:uppercase;
+        color:var(--muted);
+        padding:10px 12px;
+        border-bottom:1px solid rgba(184,154,105,0.25);
+    }
+
+    tbody td{
+        padding:14px 12px;
+        font-size:13px;
+        border-bottom:1px solid rgba(184,154,105,0.15);
+    }
+
+    .key-code{ font-family:monospace; font-size:12px; color:var(--teal); }
+
+    .btn-delete{
+        padding:6px 12px;
+        border-radius:8px;
+        border:none;
+        background:#FBE6E1;
+        color:var(--red);
+        font-size:11px;
+        font-weight:600;
+        cursor:pointer;
+    }
+
+    .toast{
+        position:fixed; bottom:28px; right:28px;
+        padding:15px 22px; border-radius:14px;
+        font-size:13px; font-weight:600; color:#fff;
+        display:none; z-index:100;
+    }
+    .toast.show{ display:block; }
+    .toast.success{ background:var(--green); }
+    .toast.error{ background:var(--red); }
+
+    @media(max-width:700px){
+        .layout{ grid-template-columns:1fr; }
+    }
+</style>
+</head>
+<body>
+
+<div class="header">
+    <h1>My Profile</h1>
+    <a href="/dashboard" class="btn-back">&larr; Back to Dashboard</a>
+</div>
+
+<div class="layout">
+    <div class="tabs">
+        <button class="tab-btn active" onclick="switchTab('general', this)">👤 General</button>
+        <button class="tab-btn" onclick="switchTab('security', this)">🔒 Security</button>
+        <button class="tab-btn" onclick="switchTab('apikeys', this)">⚙️ API Keys</button>
+    </div>
+
+    <div>
+        <div id="general" class="panel tab-content active">
+            <h2>General Settings</h2>
+            <p class="sub">Update your account details</p>
+
+            <label>Email Address</label>
+            <input type="email" id="profileEmail" value="{{ user.email }}">
+
+            <label>Full Name</label>
+            <input type="text" id="profileFullName" value="{{ user.full_name or '' }}">
+
+            <label>Company Name</label>
+            <input type="text" id="profileCompanyName" value="{{ user.company_name or '' }}">
+
+            <button class="btn-primary" onclick="saveGeneral()">Save Changes</button>
+        </div>
+
+        <div id="security" class="panel tab-content">
+            <h2>Security Settings</h2>
+            <p class="sub">Change your password here. Please choose a strong password.</p>
+
+            <label>Current Password</label>
+            <input type="password" id="currentPassword">
+
+            <label>New Password</label>
+            <input type="password" id="newPassword">
+
+            <label>Confirm New Password</label>
+            <input type="password" id="confirmPassword">
+
+            <button class="btn-primary" onclick="updatePassword()">Update Password</button>
+        </div>
+
+        <div id="apikeys" class="panel tab-content">
+            <h2>API Keys</h2>
+            <p class="sub">Use these keys to authenticate your application with our API. Keep them secret!</p>
+
+            <table>
+                <thead>
+                    <tr><th>Key</th><th>Created</th><th>Actions</th></tr>
+                </thead>
+                <tbody id="apiKeysBody">
+                    <tr><td colspan="3" style="color:var(--muted);">Loading…</td></tr>
+                </tbody>
+            </table>
+
+            <button class="btn-primary" onclick="generateKey()">+ Generate New Key</button>
+        </div>
+    </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+function switchTab(tabId, btn){
+    document.querySelectorAll(".tab-content").forEach(el => el.classList.remove("active"));
+    document.querySelectorAll(".tab-btn").forEach(el => el.classList.remove("active"));
+    document.getElementById(tabId).classList.add("active");
+    btn.classList.add("active");
+}
+
+function showToast(message, type="success"){
+    const toast = document.getElementById("toast");
+    toast.textContent = message;
+    toast.className = "toast show " + type;
+    setTimeout(() => { toast.className = "toast"; }, 3000);
+}
+
+async function saveGeneral(){
+    const res = await fetch("/api/profile", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            email: document.getElementById("profileEmail").value,
+            full_name: document.getElementById("profileFullName").value,
+            company_name: document.getElementById("profileCompanyName").value
+        })
+    });
+    const data = await res.json();
+    if(!res.ok){ showToast(data.detail || "Update failed", "error"); return; }
+    showToast("Profile updated successfully");
+}
+
+async function updatePassword(){
+    const current_password = document.getElementById("currentPassword").value;
+    const new_password = document.getElementById("newPassword").value;
+    const confirm_password = document.getElementById("confirmPassword").value;
+
+    const res = await fetch("/api/profile/change-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ current_password, new_password, confirm_password })
+    });
+    const data = await res.json();
+    if(!res.ok){ showToast(data.detail || "Update failed", "error"); return; }
+    showToast("Password updated successfully");
+    document.getElementById("currentPassword").value = "";
+    document.getElementById("newPassword").value = "";
+    document.getElementById("confirmPassword").value = "";
+}
+
+function formatDate(iso){
+    if(!iso) return "—";
+    return new Date(iso).toLocaleDateString();
+}
+
+async function loadApiKeys(){
+    const res = await fetch("/api/profile/api-keys");
+    const data = await res.json();
+    const body = document.getElementById("apiKeysBody");
+
+    if(data.length === 0){
+        body.innerHTML = '<tr><td colspan="3" style="color:var(--muted);">No API keys generated yet.</td></tr>';
+        return;
+    }
+
+    body.innerHTML = data.map(k => `
+        <tr>
+            <td class="key-code">${k.key}</td>
+            <td>${formatDate(k.created_at)}</td>
+            <td><button class="btn-delete" onclick="deleteKey(${k.id})">Revoke</button></td>
+        </tr>
+    `).join("");
+}
+
+async function generateKey(){
+    const res = await fetch("/api/profile/api-keys", { method: "POST" });
+    const data = await res.json();
+    if(!res.ok){ showToast(data.detail || "Failed to generate key", "error"); return; }
+    showToast("New API key generated");
+    loadApiKeys();
+}
+
+async function deleteKey(id){
+    const res = await fetch(`/api/profile/api-keys/${id}`, { method: "DELETE" });
+    const data = await res.json();
+    if(!res.ok){ showToast(data.detail || "Failed to revoke key", "error"); return; }
+    showToast("API key revoked");
+    loadApiKeys();
+}
+
+loadApiKeys();
+</script>
+
+</body>
+</html>

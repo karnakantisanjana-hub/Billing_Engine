@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>BillingEngine</title>
+
+    <link rel="stylesheet" href="/static/css/style.css">
+
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+
+</head>
+
+<body>
+
+    <!-- ================= NAVBAR ================= -->
+
+    <nav class="navbar">
+
+        <div class="logo">
+
+            ⚡ BillingEngine
+
+        </div>
+
+        <ul class="nav-links">
+
+            <li><a href="/">Home</a></li>
+
+            <li><a href="#features">Features</a></li>
+
+            <li><a href="#">Pricing</a></li>
+
+            <li><a href="#">Contact</a></li>
+
+        </ul>
+
+        <div class="nav-buttons">
+
+    <a href="/signin" class="signin-btn">
+        👨‍💼 Administrator
+    </a>
+
+    <a href="/customer/login" class="signup-btn">
+        👤 Customer
+    </a>
+
+</div>
+
+    </nav>
+
+    <!-- ================= HERO ================= -->
+
+    <section class="hero">
+
+        <div class="hero-left">
+
+            <span class="badge">
+
+                Trusted Subscription Platform
+
+            </span>
+
+            <h1>
+
+                Revenue
+
+                <span class="gold">
+
+                   that renews itself,
+
+                </span>
+
+               so you can focus on what's next.
+
+            </h1>
+
+            <p>
+
+                Manage customers, subscriptions, invoices,
+                recurring payments and billing analytics
+                from one beautiful dashboard.
+
+            </p>
+
+            <div class="hero-buttons">
+
+    <a href="/signin" class="primary">
+        👨‍💼 Administrator Portal
+    </a>
+
+    <a href="/customer/login" class="secondary">
+        👤 Customer Portal
+    </a>
+
+</div> 
+        </div>
+
+        <div class="hero-right">
+    <img src="/static/images/hero.svg" alt="Subscription billing illustration">
+</div>
+
+    </section>
+    <section id="features" class="features">
+
+    <h2 class="section-title">
+        Everything You Need for Subscription Billing
+    </h2>
+
+    <div class="feature-grid">
+
+        <div class="feature-card">
+            <h3>📋 Subscription Management</h3>
+            <p>
+                Create and manage subscription plans with monthly or yearly billing cycles.
+            </p>
+        </div>
+
+        <div class="feature-card">
+            <h3>👥 Customer Management</h3>
+            <p>
+                Maintain customer profiles, subscriptions, invoices, and payment history in one place.
+            </p>
+        </div>
+
+        <div class="feature-card">
+            <h3>🧾 Automated Invoicing</h3>
+            <p>
+                Generate invoices automatically with GST calculations and due dates.
+            </p>
+        </div>
+
+        <div class="feature-card">
+            <h3>💳 Payment Tracking</h3>
+            <p>
+                Record payments and monitor pending, paid, and overdue invoices.
+            </p>
+        </div>
+
+        <div class="feature-card">
+            <h3>📈 Revenue Analytics</h3>
+            <p>
+                Visualize recurring revenue, active subscriptions, and business growth.
+            </p>
+        </div>
+
+        <div class="feature-card">
+            <h3>🔒 Secure Authentication</h3>
+            <p>
+                Separate Admin and Customer portals secured with JWT authentication.
+            </p>
+        </div>
+
+    </div>
+
+</section>
+<!-- Role Selection Modal -->
+<div id="roleModal" class="role-modal">
+
+    <div class="role-box">
+
+        <span class="close-btn" onclick="closeRoleModal()">&times;</span>
+
+        <h2>Welcome Back 👋</h2>
+
+        <p>How would you like to continue?</p>
+
+        <div class="role-card" onclick="location.href='/signin'">
+
+            <div class="emoji">👨‍💼</div>
+
+            <div>
+                <h3>Administrator</h3>
+                <p>Manage billing, customers and subscriptions</p>
+            </div>
+
+        </div>
+
+        <div class="role-card" onclick="location.href='/customer/login'">
+
+            <div class="emoji">👤</div>
+
+            <div>
+                <h3>Customer</h3>
+                <p>View subscriptions, invoices and payments</p>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+</body>
+
+</html>
