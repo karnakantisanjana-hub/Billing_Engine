@@ -1,4 +1,3 @@
-# app/routers/dependencies.py
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy.orm import Session
@@ -13,15 +12,7 @@ async def get_current_customer(
     credentials: HTTPAuthorizationCredentials = Depends(security),
     db: Session = Depends(get_db)
 ) -> Customer:
-    """
-    Dependency to get current authenticated customer from JWT token
-    
-    Usage in routes:
-        @router.get("/my-subscriptions")
-        async def get_subscriptions(customer: Customer = Depends(get_current_customer)):
-            return {"subscriptions": customer.subscriptions}
-    """
-    
+
     if not credentials:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,

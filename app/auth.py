@@ -9,7 +9,7 @@ from app.database import get_db
 from app.models import User
 from fastapi import Request, Depends, HTTPException, status
 
-SECRET_KEY = os.getenv("JWT_SECRET_KEY")
+SECRET_KEY = os.getenv("JWT_SECRET_KEY", "change-this-to-a-long-random-string")
 ALGORITHM = os.getenv("JWT_ALGORITHM", "HS256")
 EXPIRE_MINUTES = int(os.getenv("JWT_EXPIRE_MINUTES", 60))
 
@@ -42,19 +42,37 @@ def decode_access_token(token: str):
 
 
 def get_current_user(request: Request, db: Session = Depends(get_db)):
-    token = request.cookies.get("access_token")
+    token = None
+
+    auth_header = request.headers.get("Authorization")
+    print("Authorization Header:", auth_header)
+
+    if auth_header and auth_header.startswith("Bearer "):
+        token = auth_header.split(" ", 1)[1]
+
     if not token:
+        token = request.cookies.get("access_token")
+
+    print("Token:", token)
+
+    if not token:
+        print("NO TOKEN FOUND")
         return None
 
     payload = decode_access_token(token)
+    print("PAYLOAD:", payload)
+
     if not payload:
+        print("TOKEN INVALID")
         return None
 
     user_id = payload.get("sub")
-    if not user_id:
-        return None
+    print("USER ID:", user_id)
 
-    return db.query(User).filter(User.id == int(user_id)).first()
+    user = db.query(User).filter(User.id == int(user_id)).first()
+    print("USER:", user)
+
+    return user
 
 from fastapi import HTTPException, status
 

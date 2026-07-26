@@ -1,12 +1,11 @@
 import calendar
 from datetime import date
 from sqlalchemy.orm import Session
-
 from app.models import Subscription, Plan, BillingCycle
 
 
 def add_months(d: date, months: int) -> date:
-    """Adds months to a date, safely handling month-end overflow (e.g. Jan 31 + 1 month = Feb 28/29)."""
+    
     month_index = d.month - 1 + months
     year = d.year + month_index // 12
     month = month_index % 12 + 1
@@ -22,15 +21,11 @@ def calculate_next_renewal_date(current_date: date, billing_interval: str) -> da
     elif interval in ("year", "yearly", "annual", "annually"):
         return add_months(current_date, 12)
     else:
-        # default fallback for any unrecognized interval
         return add_months(current_date, 1)
 
 
 def generate_billing_cycle(db: Session, subscription: Subscription) -> BillingCycle:
-    """
-    Creates the next billing cycle record for a subscription, continuing on
-    from its most recent cycle (or its start_date if this is the first cycle).
-    """
+    
     plan = db.query(Plan).filter(Plan.id == subscription.plan_id).first()
     if not plan:
         raise ValueError("Plan not found for this subscription")

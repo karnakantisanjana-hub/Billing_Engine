@@ -1,42 +1,52 @@
-from datetime import datetime
-from sqlalchemy.orm import Session
-from app.models import Subscription
+from datetime import datetime, timezone
+from typing import Dict, Any, Set
 
-VALID_TRANSITIONS = {
-    "trial":      ["active", "cancelled"],
-    "active":     ["past_due", "cancelled", "paused"],
-    "past_due":   ["active", "cancelled"],
-    "paused":     ["active", "cancelled"],
-    "cancelled":  []
+
+
+VALID_STATES = {"trial", "active", "paused", "past_due", "cancelled"}
+
+
+ALLOWED_TRANSITIONS: Dict[str, Set[str]] = {
+    "trial": {"active", "cancelled"},
+    "active": {"paused", "past_due", "cancelled"},
+    "paused": {"active", "cancelled"},
+    "past_due": {"active", "cancelled"},
+    "cancelled": set()  
 }
 
-
-class InvalidTransitionError(Exception):
+class InvalidStateTransitionError(Exception):
+    """Raised when an illegal status change is attempted."""
     pass
 
 
-def transition_subscription_status(db: Session, subscription: Subscription, new_status: str) -> Subscription:
+def transition_subscription_status(subscription, new_status: str):
     """
-    Validates and applies a subscription status transition.
-    Raises InvalidTransitionError if the transition isn't allowed.
+    Validates and performs a status transition for a subscription.
+    Works with SQLAlchemy ORM objects directly.
     """
     current_status = subscription.status
 
-    if new_status == current_status:
-        raise InvalidTransitionError(f"Subscription is already '{current_status}'")
+   
+    if new_status not in VALID_STATES:
+        raise ValueError(f"Invalid target state: '{new_status}'. Allowed states are {VALID_STATES}")
 
-    allowed = VALID_TRANSITIONS.get(current_status, [])
+    
+    if current_status == new_status:
+        raise InvalidStateTransitionError(f"Subscription is already in '{current_status}' state.")
 
-    if new_status not in allowed:
-        raise InvalidTransitionError(
-            f"Cannot transition from '{current_status}' to '{new_status}'. "
-            f"Allowed next states: {allowed if allowed else 'none (terminal state)'}"
+    allowed_next_states = ALLOWED_TRANSITIONS.get(current_status, set())
+    
+    if new_status not in allowed_next_states:
+        raise InvalidStateTransitionError(
+            f"Cannot transition subscription from '{current_status}' to '{new_status}'. "
+            f"Allowed transitions from '{current_status}': {allowed_next_states or 'None'}"
         )
 
+    from datetime import datetime, timezone
     subscription.status = new_status
-    subscription.status_updated_at = datetime.utcnow()
-
-    db.commit()
-    db.refresh(subscription)
+    subscription.status_updated_at = datetime.now(timezone.utc)
 
     return subscription
+
+InvalidTransitionError = InvalidStateTransitionError
+VALID_TRANSITIONS = ALLOWED_TRANSITIONS

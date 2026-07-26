@@ -1,6 +1,5 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
-
 from app.database import get_db
 from app.models import Subscription, Plan,Invoice, Payment
 from app.auth import require_user
@@ -38,7 +37,7 @@ def get_revenue_summary(db: Session = Depends(get_db), user=Depends(require_user
 
 
 @router.get("/dashboard-summary")
-def get_dashboard_summary(db: Session = Depends(get_db), user=Depends(require_user)):
+def get_dashboard_summary(db: Session = Depends(get_db)):
     active_subscriptions = (
         db.query(Subscription)
         .filter(Subscription.status.in_(["active", "past_due"]))

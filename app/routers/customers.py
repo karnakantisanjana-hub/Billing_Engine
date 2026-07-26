@@ -1,7 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from typing import List
-
 from app.database import get_db
 from app.schemas import CustomerCreate, CustomerUpdate, CustomerOut
 from app.auth import require_user

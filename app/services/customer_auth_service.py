@@ -18,7 +18,6 @@ class CustomerAuthService:
     ) -> Customer:
         """Register a new customer with password"""
         
-        # Check if email already exists
         existing_customer = db.query(Customer).filter(
             Customer.email == email
         ).first()
@@ -29,10 +28,10 @@ class CustomerAuthService:
                 detail="Email already registered"
             )
         
-        # Hash password
+
         hashed_password = PasswordUtils.hash_password(password)
         
-        # Create new customer
+    
         customer = Customer(
             name=name,
             email=email,
@@ -53,12 +52,7 @@ class CustomerAuthService:
         email: str,
         password: str
     ) -> Tuple[Customer, str, str, int, int]:
-        """
-        Authenticate customer and generate tokens
-        Returns: (customer, access_token, refresh_token, access_expires_in, refresh_expires_in)
-        """
-        
-        # Find customer
+       
         customer = db.query(Customer).filter(
             Customer.email == email
         ).first()
@@ -69,21 +63,19 @@ class CustomerAuthService:
                 detail="Invalid email or password"
             )
         
-        # Verify password
         if not customer.password or not PasswordUtils.verify_password(password, customer.password):
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Invalid email or password"
             )
         
-        # Check if customer is active
+
         if not customer.is_active:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail="Customer account is inactive"
             )
         
-        # Create tokens
         access_token, access_expires_in = JWTTokenHandler.create_access_token(
             customer_id=customer.id,
             email=customer.email
@@ -121,7 +113,7 @@ class CustomerAuthService:
                 detail="Customer not found or inactive"
             )
         
-        # Create new access token
+        
         access_token, expires_in = JWTTokenHandler.create_access_token(
             customer_id=customer.id,
             email=customer.email

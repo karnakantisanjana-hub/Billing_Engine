@@ -2,12 +2,12 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from typing import List
 from datetime import date, timedelta
-
 from app.database import get_db
 from app.models import Subscription, Customer, Plan, AuditLog
 from app.schemas import SubscriptionOut, SubscriptionFullUpdate, SubscribeRequest, ChangePlanRequest
 from app.auth import require_user
 from app.services.subscription_service import transition_subscription_status, InvalidTransitionError
+from app.services.invoice_generation_service import generate_initial_invoice_if_active
 
 router = APIRouter(prefix="/subscriptions", tags=["Subscriptions"])
 
@@ -44,7 +44,7 @@ def subscribe(sub_in: SubscribeRequest, db: Session = Depends(get_db), user=Depe
     db.add(subscription)
     db.commit()
     db.refresh(subscription)
-
+    generate_initial_invoice_if_active(db, subscription)
     db.add(AuditLog(
         entity_type="subscription",
         entity_id=subscription.id,
@@ -156,7 +156,7 @@ def resume_subscription(subscription_id: int, db: Session = Depends(get_db), use
         transition_subscription_status(db, sub, "active")
     except InvalidTransitionError as e:
         raise HTTPException(status_code=400, detail=str(e))
-
+    generate_initial_invoice_if_active(db, sub)
     db.add(AuditLog(entity_type="subscription", entity_id=sub.id, action="resume", performed_by=user.username))
     db.commit()
     return sub
@@ -176,3 +176,4 @@ def cancel_subscription(subscription_id: int, db: Session = Depends(get_db), use
     db.add(AuditLog(entity_type="subscription", entity_id=sub.id, action="cancel", performed_by=user.username))
     db.commit()
     return sub
+

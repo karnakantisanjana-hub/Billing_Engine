@@ -13,6 +13,7 @@ from sqlalchemy import (
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
 from app.database import Base
+from datetime import datetime
 
 
 class ApiKey(Base):
@@ -22,8 +23,6 @@ class ApiKey(Base):
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     key = Column(String, unique=True, nullable=False)
     created_at = Column(DateTime, server_default=func.now())
-    
-    # Relationships
     user = relationship("User", back_populates="api_keys")
 
 class User(Base):
@@ -34,11 +33,11 @@ class User(Base):
     username = Column(String, unique=True, nullable=False)
     email = Column(String, unique=True, nullable=False)
     password = Column(String, nullable=False)
-    full_name = Column(String)         # ← add back
-    company_name = Column(String)      # ← add back
+    full_name = Column(String)         
+    company_name = Column(String)      
     created_at = Column(DateTime, server_default=func.now())
     role = Column(String, default="admin")
-
+    profile_picture = Column(String, nullable=True) 
     api_keys = relationship("ApiKey", back_populates="user")
     audit_logs = relationship("AuditLog", back_populates="user")
 
@@ -55,8 +54,6 @@ class Plan(Base):
     is_archived = Column(Boolean, default=False)
     created_at = Column(DateTime, server_default=func.now())
     updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
-    
-    # Relationships
     subscriptions = relationship("Subscription", back_populates="plan")
 
 
@@ -68,13 +65,11 @@ class Customer(Base):
     name = Column(String, nullable=False)
     email = Column(String, unique=True, nullable=False, index=True)
     company_name = Column(String)
-    password = Column(String, nullable=True)  # Nullable for backward compatibility
+    password = Column(String, nullable=True)  
     is_active = Column(Boolean, default=True)
     is_verified = Column(Boolean, default=False)
     created_at = Column(DateTime, server_default=func.now())
     updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
-    
-    # Relationships
     subscriptions = relationship("Subscription", back_populates="customer")
     invoices = relationship("Invoice", back_populates="customer")
 
@@ -92,12 +87,12 @@ class Subscription(Base):
     created_at = Column(DateTime, server_default=func.now())
     updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
     
-    # Relationships
+    
     customer = relationship("Customer", back_populates="subscriptions")
     plan = relationship("Plan", back_populates="subscriptions")
     billing_cycles = relationship("BillingCycle", back_populates="subscription")
     invoices = relationship("Invoice", back_populates="subscription")
-
+    refunds = relationship("Refund", back_populates="subscription", cascade="all, delete-orphan")
 
 class BillingCycle(Base):
     __tablename__ = "billing_cycles"
@@ -111,7 +106,7 @@ class BillingCycle(Base):
     created_at = Column(DateTime, server_default=func.now())
     updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
     
-    # Relationships
+
     subscription = relationship("Subscription", back_populates="billing_cycles")
     invoices = relationship("Invoice", back_populates="billing_cycle")
 
@@ -133,12 +128,12 @@ class Invoice(Base):
     created_at = Column(DateTime, server_default=func.now())
     updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
     
-    # Relationships
+    
     subscription = relationship("Subscription", back_populates="invoices")
     customer = relationship("Customer", back_populates="invoices")
     billing_cycle = relationship("BillingCycle", back_populates="invoices")
     payments = relationship("Payment", back_populates="invoice")
-
+    refunds = relationship("Refund", back_populates="invoice", cascade="all, delete-orphan") 
 
 class Payment(Base):
     __tablename__ = "payments"
@@ -152,8 +147,6 @@ class Payment(Base):
     payment_date = Column(DateTime)
     created_at = Column(DateTime, server_default=func.now())
     updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
-    
-    # Relationships
     invoice = relationship("Invoice", back_populates="payments")
 
 
@@ -170,5 +163,20 @@ class AuditLog(Base):
     performed_by = Column(String)
     created_at = Column(DateTime, server_default=func.now())
     
-    # Relationships
     user = relationship("User", back_populates="audit_logs")
+
+class Refund(Base):
+    __tablename__ = "refunds"
+
+    id = Column(Integer, primary_key=True, index=True)
+    invoice_id = Column(Integer, ForeignKey("invoices.id"))
+    subscription_id = Column(Integer, ForeignKey("subscriptions.id"), nullable=True)
+    amount = Column(Float)
+    reason = Column(String, default="customer_request")
+    status = Column(String, default="approved")
+    refund_reference = Column(String, unique=True)
+    processed_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    invoice = relationship("Invoice", back_populates="refunds")
+    subscription = relationship("Subscription", back_populates="refunds")
