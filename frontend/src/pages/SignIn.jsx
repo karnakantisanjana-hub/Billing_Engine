@@ -47,7 +47,97 @@ export default function SignIn({ setCurrentPage }) {
         fontFamily: "'Segoe UI', system-ui, -apple-system, sans-serif",
       }}
     >
-      {/* ─── LEFT PANEL (BRAND) ─── */}
+      {/* ─── NEUMORPHIC GLOBAL STYLES ─── */}
+      <style>{`
+        /* Right Panel Neumorphic Inputs */
+        .neu-input {
+          width: 100%;
+          padding: 14px 16px;
+          border: none !important;
+          border-radius: 12px;
+          font-size: 15px;
+          background-color: #EFE8DB;
+          color: #2B2420;
+          outline: none;
+          box-sizing: border-box;
+          box-shadow: inset 3px 3px 6px #c8bfb0, inset -3px -3px 6px #ffffff;
+          transition: all 0.25s ease;
+        }
+
+        .neu-input:focus {
+          box-shadow: inset 4px 4px 8px #beaf9b, inset -4px -4px 8px #ffffff;
+        }
+
+        .neu-input-error {
+          box-shadow: inset 3px 3px 6px rgba(239, 68, 68, 0.3), inset -3px -3px 6px #ffffff !important;
+        }
+
+        /* Right Panel Neumorphic Primary Button */
+        .neu-submit-btn {
+          width: 100%;
+          padding: 14px;
+          background: #C5A059;
+          color: #ffffff;
+          border: none;
+          border-radius: 12px;
+          font-size: 16px;
+          font-weight: 700;
+          cursor: pointer;
+          letter-spacing: 0.3px;
+          margin-top: 12px;
+          box-shadow: 5px 5px 12px #c5beaf, -5px -5px 12px #ffffff;
+          transition: all 0.2s ease;
+        }
+
+        .neu-submit-btn:hover:not(:disabled) {
+          background: #d4b067;
+          box-shadow: 6px 6px 14px #c5beaf, -6px -6px 14px #ffffff;
+          transform: translateY(-1px);
+        }
+
+        .neu-submit-btn:active:not(:disabled) {
+          box-shadow: inset 3px 3px 6px #a38140, inset -3px -3px 6px #e7bf72;
+          transform: translateY(1px);
+        }
+
+        /* Feature Card Neumorphic Inset/Extruded Style */
+        .neu-left-card {
+          display: flex;
+          align-items: center;
+          gap: 14px;
+          padding: 12px 16px;
+          margin-bottom: 12px;
+          border-radius: 14px;
+          background: #181F2C;
+          color: #9CA3AF;
+          font-size: 14px;
+          box-shadow: 4px 4px 8px #0d1118, -4px -4px 8px #232d40;
+        }
+
+        /* Toggle Button Inset Hover */
+        .neu-toggle-btn {
+          position: absolute;
+          right: 12px;
+          top: 50%;
+          transform: translateY(-50%);
+          background: #EFE8DB;
+          border: none;
+          padding: 6px 10px;
+          border-radius: 8px;
+          color: #7A7A7A;
+          cursor: pointer;
+          font-size: 12px;
+          font-weight: 600;
+          box-shadow: 2px 2px 5px #c8bfb0, -2px -2px 5px #ffffff;
+          transition: all 0.2s ease;
+        }
+
+        .neu-toggle-btn:active {
+          box-shadow: inset 2px 2px 4px #c8bfb0, inset -2px -2px 4px #ffffff;
+        }
+      `}</style>
+
+      {/* ─── LEFT PANEL (BRAND - DARK NEUMORPHISM) ─── */}
       <div
         style={{
           flex: 1,
@@ -69,30 +159,42 @@ export default function SignIn({ setCurrentPage }) {
             width: "100%",
             height: "100%",
             background:
-              "radial-gradient(circle, rgba(197,160,89,0.08) 0%, transparent 70%)",
+              "radial-gradient(circle, rgba(197,160,89,0.06) 0%, transparent 70%)",
           }}
         />
 
-        <div style={{ zIndex: 1 }}>
+        <div style={{ zIndex: 1, maxWidth: 360, width: "100%" }}>
+          {/* Neumorphic Brand Container */}
           <div
             style={{
-              fontSize: 32,
-              fontWeight: 800,
-              color: "#C5A059",
-              letterSpacing: 0.5,
-              marginBottom: 16,
+              padding: "20px 24px",
+              borderRadius: "20px",
+              background: "#181F2C",
+              boxShadow: "inset 4px 4px 8px #0d1118, inset -4px -4px 8px #232d40",
+              textAlign: "center",
+              marginBottom: 24,
             }}
           >
-            BillingEngine
+            <div
+              style={{
+                fontSize: 30,
+                fontWeight: 800,
+                color: "#C5A059",
+                letterSpacing: 0.8,
+                textShadow: "1px 1px 3px #0d1118",
+              }}
+            >
+              BillingEngine
+            </div>
           </div>
+
           <p
             style={{
-              fontSize: 15,
+              fontSize: 14,
               color: "#9CA3AF",
               textAlign: "center",
-              maxWidth: 300,
               lineHeight: 1.6,
-              marginBottom: 50,
+              marginBottom: 40,
             }}
           >
             The complete SaaS billing platform. Manage subscriptions, invoices,
@@ -105,27 +207,18 @@ export default function SignIn({ setCurrentPage }) {
             { icon: "📄", text: "Automated invoice generation" },
             { icon: "👥", text: "Customer management portal" },
           ].map((item) => (
-            <div
-              key={item.text}
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: 12,
-                padding: "10px 0",
-                color: "#9CA3AF",
-                fontSize: 14,
-              }}
-            >
+            <div key={item.text} className="neu-left-card">
               <div
                 style={{
-                  width: 32,
-                  height: 32,
-                  borderRadius: 8,
-                  background: "rgba(197,160,89,0.15)",
+                  width: 34,
+                  height: 34,
+                  borderRadius: 10,
+                  background: "#181F2C",
+                  boxShadow: "inset 2px 2px 4px #0d1118, inset -2px -2px 4px #232d40",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  fontSize: 14,
+                  fontSize: 15,
                 }}
               >
                 {item.icon}
@@ -136,7 +229,7 @@ export default function SignIn({ setCurrentPage }) {
         </div>
       </div>
 
-      {/* ─── RIGHT PANEL (FORM) ─── */}
+      {/* ─── RIGHT PANEL (FORM - SOFT LIGHT NEUMORPHISM) ─── */}
       <div
         style={{
           width: 520,
@@ -146,14 +239,23 @@ export default function SignIn({ setCurrentPage }) {
           justifyContent: "center",
           alignItems: "center",
           padding: 40,
-          background: "#FDFBF7",
+          background: "#EFE8DB",
         }}
       >
-        <div style={{ width: "100%", maxWidth: 400 }}>
-          <div style={{ marginBottom: 32 }}>
+        <div 
+          style={{ 
+            width: "100%", 
+            maxWidth: 400,
+            padding: "40px 32px",
+            borderRadius: "24px",
+            background: "#EFE8DB",
+            boxShadow: "8px 8px 18px #c5beaf, -8px -8px 18px #ffffff",
+          }}
+        >
+          <div style={{ marginBottom: 28, textAlign: "center" }}>
             <h1
               style={{
-                fontSize: 28,
+                fontSize: 26,
                 fontWeight: 800,
                 color: "#2B2420",
                 marginBottom: 8,
@@ -173,9 +275,10 @@ export default function SignIn({ setCurrentPage }) {
                 style={{
                   display: "block",
                   fontSize: 13,
-                  fontWeight: 600,
+                  fontWeight: 700,
                   color: "#2B2420",
-                  marginBottom: 6,
+                  marginBottom: 8,
+                  paddingLeft: 4,
                 }}
               >
                 Email
@@ -185,27 +288,7 @@ export default function SignIn({ setCurrentPage }) {
                 placeholder="john@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                style={{
-                  width: "100%",
-                  padding: "12px 16px",
-                  border: `1.5px solid ${error ? "#EF4444" : "#F0E6D2"}`,
-                  borderRadius: 10,
-                  fontSize: 15,
-                  background: "#fff",
-                  color: "#2B2420",
-                  outline: "none",
-                  boxSizing: "border-box",
-                  transition: "border-color 0.2s, box-shadow 0.2s",
-                }}
-                onFocus={(e) => {
-                  e.target.style.borderColor = "#C5A059";
-                  e.target.style.boxShadow =
-                    "0 0 0 3px rgba(197,160,89,0.1)";
-                }}
-                onBlur={(e) => {
-                  e.target.style.borderColor = error ? "#EF4444" : "#F0E6D2";
-                  e.target.style.boxShadow = "none";
-                }}
+                className={`neu-input ${error ? "neu-input-error" : ""}`}
               />
             </div>
 
@@ -215,9 +298,10 @@ export default function SignIn({ setCurrentPage }) {
                 style={{
                   display: "block",
                   fontSize: 13,
-                  fontWeight: 600,
+                  fontWeight: 700,
                   color: "#2B2420",
-                  marginBottom: 6,
+                  marginBottom: 8,
+                  paddingLeft: 4,
                 }}
               >
                 Password
@@ -228,51 +312,20 @@ export default function SignIn({ setCurrentPage }) {
                   placeholder="Enter your password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  style={{
-                    width: "100%",
-                    padding: "12px 16px",
-                    border: `1.5px solid ${error ? "#EF4444" : "#F0E6D2"}`,
-                    borderRadius: 10,
-                    fontSize: 15,
-                    background: "#fff",
-                    color: "#2B2420",
-                    outline: "none",
-                    boxSizing: "border-box",
-                    paddingRight: 60,
-                    transition: "border-color 0.2s, box-shadow 0.2s",
-                  }}
-                  onFocus={(e) => {
-                    e.target.style.borderColor = "#C5A059";
-                    e.target.style.boxShadow =
-                      "0 0 0 3px rgba(197,160,89,0.1)";
-                  }}
-                  onBlur={(e) => {
-                    e.target.style.borderColor = error ? "#EF4444" : "#F0E6D2";
-                    e.target.style.boxShadow = "none";
-                  }}
+                  style={{ paddingRight: 70 }}
+                  className={`neu-input ${error ? "neu-input-error" : ""}`}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  style={{
-                    position: "absolute",
-                    right: 14,
-                    top: "50%",
-                    transform: "translateY(-50%)",
-                    background: "none",
-                    border: "none",
-                    color: "#9CA3AF",
-                    cursor: "pointer",
-                    fontSize: 13,
-                    fontWeight: 500,
-                  }}
+                  className="neu-toggle-btn"
                 >
                   {showPassword ? "Hide" : "Show"}
                 </button>
               </div>
               {error && (
-                <div style={{ fontSize: 12, color: "#EF4444", marginTop: 6 }}>
-                  {error}
+                <div style={{ fontSize: 12, color: "#EF4444", marginTop: 8, paddingLeft: 4, fontWeight: 500 }}>
+                  ⚠️ {error}
                 </div>
               )}
             </div>
@@ -281,26 +334,8 @@ export default function SignIn({ setCurrentPage }) {
             <button
               type="submit"
               disabled={loading}
-              style={{
-                width: "100%",
-                padding: 14,
-                background: "#C5A059",
-                color: "#fff",
-                border: "none",
-                borderRadius: 12,
-                fontSize: 16,
-                fontWeight: 600,
-                cursor: loading ? "not-allowed" : "pointer",
-                opacity: loading ? 0.6 : 1,
-                transition: "all 0.2s",
-                marginTop: 8,
-              }}
-              onMouseEnter={(e) => {
-                if (!loading) e.currentTarget.style.background = "#D4B76A";
-              }}
-              onMouseLeave={(e) => {
-                if (!loading) e.currentTarget.style.background = "#C5A059";
-              }}
+              className="neu-submit-btn"
+              style={{ opacity: loading ? 0.7 : 1 }}
             >
               {loading ? "Signing In..." : "Sign In"}
             </button>
@@ -310,7 +345,7 @@ export default function SignIn({ setCurrentPage }) {
             Don't have an account?{" "}
             <span
               onClick={() => setCurrentPage && setCurrentPage("signup")}
-              style={{ color: "#C5A059", fontWeight: 600, cursor: "pointer" }}
+              style={{ color: "#C5A059", fontWeight: 700, cursor: "pointer" }}
             >
               Create one
             </span>
@@ -319,7 +354,7 @@ export default function SignIn({ setCurrentPage }) {
           <div style={{ textAlign: "center", marginTop: 12, fontSize: 13, color: "#7A7A7A" }}>
             <span
               onClick={() => setCurrentPage && setCurrentPage("landing")}
-              style={{ color: "#C5A059", fontWeight: 600, cursor: "pointer" }}
+              style={{ color: "#C5A059", fontWeight: 700, cursor: "pointer" }}
             >
               ← Back to Home
             </span>

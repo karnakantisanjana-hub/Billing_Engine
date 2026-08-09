@@ -1,20 +1,27 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth, API_BASE_URL } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
+import { useTheme } from '../context/ThemeContext.jsx';
 import { ArrowRight, History, RefreshCw } from 'lucide-react';
-
-const COLORS = {
-  bg: '#FAF6EE',
-  card: '#FFFFFF',
-  cardBorder: '#F0E6D2',
-  shadow: '0 4px 20px rgba(197,160,89,0.10)',
-  gold: '#C5A059',
-  goldDark: '#A98244',
-  heading: '#2B2420',
-  muted: '#8A7F6D',
-};
 
 export default function PlanChange() {
   const { getAuthHeaders } = useAuth();
+  const { t } = useLanguage();
+  const { theme, colors: C } = useTheme();
+
+  const COLORS = {
+    bg: C.bg,
+    card: C.card,
+    cardBorder: C.border,
+    shadowLight: `-6px -6px 12px ${C.shadowHi}`,
+    shadowDark: `6px 6px 12px ${C.shadowLo}`,
+    gold: C.gold,
+    goldDark: C.goldText,
+    goldLight: C.goldBannerEnd,
+    goldSoft: C.goldSoft,
+    heading: C.heading,
+    muted: C.muted,
+  };
 
   const [subscriptions, setSubscriptions] = useState([]);
   const [plans, setPlans] = useState([]);
@@ -99,10 +106,10 @@ export default function PlanChange() {
       if (res.ok) {
         setPreview(data);
       } else {
-        setPreviewError(data.detail || 'Could not calculate proration.');
+        setPreviewError(data.detail || t('planchange.err_preview'));
       }
     } catch (err) {
-      setPreviewError('Network error — could not reach the server.');
+      setPreviewError(t('planchange.err_network'));
     } finally {
       setPreviewLoading(false);
     }
@@ -113,18 +120,18 @@ export default function PlanChange() {
     setConfirmError(null);
     try {
       const res = await fetch(
-    `${API_BASE_URL}/api/subscriptions/${selectedSubId}/change-plan`,
-    {
-        method: "POST",
-        headers: {
+        `${API_BASE_URL}/api/subscriptions/${selectedSubId}/change-plan`,
+        {
+          method: "POST",
+          headers: {
             ...getAuthHeaders(),
             "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
+          },
+          body: JSON.stringify({
             new_plan_id: Number(selectedPlanId),
-        }),
-    }
-  );
+          }),
+        }
+      );
       const data = await res.json();
       if (res.ok) {
         setConfirmResult(data);
@@ -134,13 +141,13 @@ export default function PlanChange() {
         fetchHistory(selectedSubId);
       } else {
         if (Array.isArray(data.detail)) {
-        setConfirmError(data.detail.map(e => e.msg).join(", "));
-      } else {
-        setConfirmError(data.detail || "Plan change failed.");
-      }
+          setConfirmError(data.detail.map(e => e.msg).join(", "));
+        } else {
+          setConfirmError(data.detail || t('planchange.err_change_failed'));
+        }
       }
     } catch (err) {
-      setConfirmError('Network error — could not reach the server.');
+      setConfirmError(t('planchange.err_network'));
     } finally {
       setConfirming(false);
     }
@@ -148,47 +155,86 @@ export default function PlanChange() {
 
   const cardStyle = {
     background: COLORS.card,
-    border: `1px solid ${COLORS.cardBorder}`,
-    borderRadius: 16,
+    borderRadius: 24,
     padding: 24,
-    boxShadow: COLORS.shadow,
+    boxShadow: `${COLORS.shadowDark}, ${COLORS.shadowLight}`,
   };
 
-  const selectStyle = {
+  const inputStyle = {
     width: '100%',
-    padding: '11px 14px',
-    borderRadius: 10,
-    border: `1px solid ${COLORS.cardBorder}`,
+    padding: '12px 16px',
+    borderRadius: 12,
+    border: 'none',
     outline: 'none',
     fontSize: 14,
     fontFamily: 'inherit',
     color: COLORS.heading,
     background: COLORS.bg,
+    boxShadow: `inset 4px 4px 8px ${COLORS.shadowDark}, inset -4px -4px 8px ${COLORS.shadowLight}`,
     cursor: 'pointer',
   };
 
+  const labelStyle = {
+    display: 'block',
+    fontSize: 13,
+    fontWeight: 600,
+    marginBottom: 8,
+    color: COLORS.muted,
+  };
+
+  const buttonBaseStyle = {
+    display: 'flex', 
+    alignItems: 'center', 
+    gap: 8, 
+    padding: '12px 20px',
+    border: 'none', 
+    borderRadius: 12,
+    cursor: 'pointer', 
+    fontWeight: 600, 
+    fontSize: 14,
+    transition: 'all 0.2s ease',
+  };
+
+  const neumorphicButton = {
+    ...buttonBaseStyle,
+    background: COLORS.bg,
+    color: COLORS.heading,
+    boxShadow: `${COLORS.shadowDark}, ${COLORS.shadowLight}`,
+  };
+
+  const neumorphicGoldButton = {
+    ...buttonBaseStyle,
+    background: `linear-gradient(145deg, ${COLORS.gold}, ${COLORS.goldDark})`,
+    color: theme === 'dark' ? '#161225' : '#fff',
+    boxShadow: `4px 4px 8px ${COLORS.shadowDark}, -4px -4px 8px ${COLORS.shadowLight}`,
+  };
+
   return (
-    <div style={{ padding: 32, background: COLORS.bg, minHeight: '100%' }}>
-      <div style={{ marginBottom: 28 }}>
-        <h1 style={{ fontSize: 28, color: COLORS.heading, margin: 0 }}>Change Plan</h1>
-        <p style={{ color: COLORS.muted, margin: '4px 0 0 0' }}>
-          Upgrade or downgrade a subscription mid-cycle, with fair proration
+    <div style={{ padding: 40, background: COLORS.bg, minHeight: '100vh', fontFamily: 'system-ui, -apple-system, sans-serif' }}>
+      <div style={{
+        marginBottom: 32,
+        background: `linear-gradient(135deg, ${COLORS.goldSoft} 0%, ${COLORS.goldLight} 100%)`,
+        padding: '28px 32px',
+        borderRadius: 24,
+        boxShadow: `6px 6px 16px ${COLORS.shadowDark.replace('6px 6px 12px ', '')}, -6px -6px 16px #ffffff`,
+      }}>
+        <h1 style={{ fontSize: 32, color: COLORS.heading, margin: 0, fontWeight: 800, letterSpacing: -0.5 }}>{t('planchange.title')}</h1>
+        <p style={{ color: COLORS.goldDark, margin: '6px 0 0 0', fontSize: 15, fontWeight: 500 }}>
+          {t('planchange.subtitle')}
         </p>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1.1fr 0.9fr', gap: 24, alignItems: 'start' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1.1fr 0.9fr', gap: 32, alignItems: 'start' }}>
         {/* Left: plan change flow */}
         <div style={cardStyle}>
-          <label style={{ display: 'block', fontSize: 13, fontWeight: 600, marginBottom: 8, color: COLORS.muted }}>
-            Select Subscription
-          </label>
+          <label style={labelStyle}>{t('planchange.select_subscription')}</label>
           <select
             value={selectedSubId}
             onChange={(e) => handleSelectSubscription(e.target.value)}
-            style={{ ...selectStyle, marginBottom: 24 }}
+            style={{ ...inputStyle, marginBottom: 24 }}
             disabled={loading}
           >
-            <option value="">-- Choose a subscription --</option>
+            <option value="">{t('planchange.choose_subscription')}</option>
             {subscriptions
               .filter((s) => s.status !== 'cancelled')
               .map((s) => (
@@ -202,20 +248,20 @@ export default function PlanChange() {
             <>
               {/* Current plan */}
               <div style={{ marginBottom: 24 }}>
-                <div style={{ fontSize: 12, textTransform: 'uppercase', letterSpacing: 0.5, color: COLORS.muted, marginBottom: 8 }}>
-                  Current Plan
+                <div style={{ fontSize: 12, textTransform: 'uppercase', letterSpacing: 1, color: COLORS.muted, marginBottom: 12, fontWeight: 700 }}>
+                  {t('planchange.current_plan')}
                 </div>
                 <div
                   style={{
-                    background: '#FBF7EF',
-                    border: `1px solid ${COLORS.cardBorder}`,
-                    borderRadius: 12,
-                    padding: '16px 18px',
+                    background: COLORS.bg,
+                    borderRadius: 16,
+                    padding: '20px',
+                    boxShadow: `inset 4px 4px 8px ${COLORS.shadowDark}, inset -4px -4px 8px ${COLORS.shadowLight}`,
                   }}
                 >
-                  <div style={{ fontSize: 18, fontWeight: 700, color: COLORS.heading }}>{selectedSub.plan_name}</div>
+                  <div style={{ fontSize: 18, fontWeight: 800, color: COLORS.heading }}>{selectedSub.plan_name}</div>
                   {currentPlan && (
-                    <div style={{ fontSize: 13, color: COLORS.muted, marginTop: 4 }}>
+                    <div style={{ fontSize: 14, color: COLORS.muted, marginTop: 4, fontWeight: 500 }}>
                       ₹{currentPlan.price}/{currentPlan.billing_interval}
                     </div>
                   )}
@@ -224,22 +270,25 @@ export default function PlanChange() {
 
               {/* New plan selection */}
               <div style={{ marginBottom: 8 }}>
-                <div style={{ fontSize: 12, textTransform: 'uppercase', letterSpacing: 0.5, color: COLORS.muted, marginBottom: 10 }}>
-                  Select New Plan
+                <div style={{ fontSize: 12, textTransform: 'uppercase', letterSpacing: 1, color: COLORS.muted, marginBottom: 12, fontWeight: 700 }}>
+                  {t('planchange.select_new_plan')}
                 </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                   {availablePlans.map((p) => (
                     <label
                       key={p.id}
                       style={{
                         display: 'flex',
                         alignItems: 'center',
-                        gap: 10,
-                        padding: '12px 14px',
-                        borderRadius: 10,
-                        border: `1px solid ${selectedPlanId === String(p.id) ? COLORS.gold : COLORS.cardBorder}`,
-                        background: selectedPlanId === String(p.id) ? '#FBF3E3' : COLORS.bg,
+                        gap: 12,
+                        padding: '16px 20px',
+                        borderRadius: 16,
+                        background: selectedPlanId === String(p.id) ? COLORS.goldSoft : COLORS.bg,
                         cursor: 'pointer',
+                        boxShadow: selectedPlanId === String(p.id) 
+                          ? `inset 4px 4px 8px ${COLORS.shadowDark}, inset -4px -4px 8px ${COLORS.shadowLight}` 
+                          : `${COLORS.shadowDark}, ${COLORS.shadowLight}`,
+                        transition: 'all 0.2s ease',
                       }}
                     >
                       <input
@@ -247,9 +296,10 @@ export default function PlanChange() {
                         name="newPlan"
                         checked={selectedPlanId === String(p.id)}
                         onChange={() => handleSelectNewPlan(String(p.id))}
+                        style={{ accentColor: COLORS.gold }}
                       />
-                      <span style={{ fontWeight: 600, color: COLORS.heading }}>{p.name}</span>
-                      <span style={{ color: COLORS.muted, fontSize: 13, marginLeft: 'auto' }}>
+                      <span style={{ fontWeight: 700, color: COLORS.heading, fontSize: 15 }}>{p.name}</span>
+                      <span style={{ color: COLORS.muted, fontSize: 14, marginLeft: 'auto', fontWeight: 500 }}>
                         ₹{p.price}/{p.billing_interval}
                       </span>
                     </label>
@@ -260,79 +310,82 @@ export default function PlanChange() {
           )}
 
           {!selectedSub && !loading && (
-            <div style={{ padding: '24px 0', textAlign: 'center', color: COLORS.muted, fontSize: 14 }}>
-              Select a subscription above to begin.
+            <div style={{ padding: '32px 0', textAlign: 'center', color: COLORS.muted, fontSize: 15, fontWeight: 500 }}>
+              {t('planchange.select_prompt')}
             </div>
           )}
         </div>
 
         {/* Right: proration preview + history */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
           <div style={cardStyle}>
-            <h3 style={{ margin: '0 0 16px 0', fontSize: 17, color: COLORS.heading }}>Plan Upgrade Summary</h3>
+            <h3 style={{ margin: '0 0 20px 0', fontSize: 18, color: COLORS.heading, fontWeight: 800 }}>{t('planchange.summary_title')}</h3>
 
             {confirmResult ? (
               <div>
                 <div
                   style={{
-                    background: '#DCFCE7',
-                    color: '#166534',
-                    padding: 14,
-                    borderRadius: 10,
-                    fontSize: 13,
-                    marginBottom: 14,
+                    background: theme === 'dark' ? 'rgba(34, 197, 94, 0.16)' : '#DCFCE7',
+                    color: theme === 'dark' ? '#86EFAC' : '#166534',
+                    padding: 16,
+                    borderRadius: 12,
+                    fontSize: 14,
+                    marginBottom: 16,
+                    fontWeight: 600,
+                    boxShadow: 'inset 2px 2px 4px rgba(0,0,0,0.05)'
                   }}
                 >
-                  ✓ Plan changed successfully.
+                  {t('planchange.success')}
                 </div>
-                <div style={{ fontSize: 13, color: COLORS.muted }}>
-                  New plan: <strong style={{ color: COLORS.heading }}>
+                <div style={{ fontSize: 14, color: COLORS.muted, fontWeight: 500 }}>
+                  {t('planchange.new_plan_label')} <strong style={{ color: COLORS.heading, fontWeight: 700 }}>
                     {plans.find((p) => p.id === confirmResult.new_plan_id)?.name}
                   </strong>
                 </div>
               </div>
             ) : previewLoading ? (
-              <div style={{ color: COLORS.muted, fontSize: 14 }}>Calculating proration...</div>
+              <div style={{ color: COLORS.muted, fontSize: 15, fontWeight: 500 }}>{t('planchange.calculating')}</div>
             ) : previewError ? (
-              <div style={{ color: '#991B1B', fontSize: 14 }}>{previewError}</div>
+              <div style={{ color: theme === 'dark' ? '#FCA5A5' : '#991B1B', fontSize: 14, fontWeight: 600 }}>{previewError}</div>
             ) : preview ? (
               <>
                 {[
-                  ['Remaining days in cycle', `${preview.remaining_days} / ${preview.cycle_length_days}`],
-                  [`Unused ${preview.current_plan_name} credit`, `-₹${preview.unused_credit}`],
-                  [`${preview.new_plan_name} charge (remaining period)`, `+₹${preview.new_plan_charge}`],
+                  [t('planchange.remaining_days'), `${preview.remaining_days} / ${preview.cycle_length_days}`],
+                  [t('planchange.unused_credit').replace('{plan}', preview.current_plan_name), `-₹${preview.unused_credit}`],
+                  [t('planchange.new_plan_charge').replace('{plan}', preview.new_plan_name), `+₹${preview.new_plan_charge}`],
                 ].map(([label, value]) => (
                   <div
                     key={label}
                     style={{
                       display: 'flex',
                       justifyContent: 'space-between',
-                      padding: '9px 0',
-                      fontSize: 13,
-                      borderBottom: `1px solid ${COLORS.cardBorder}`,
+                      padding: '12px 0',
+                      fontSize: 14,
+                      borderBottom: `1px solid ${COLORS.goldLight}`,
                       color: COLORS.muted,
+                      fontWeight: 500
                     }}
                   >
                     <span>{label}</span>
-                    <span style={{ color: COLORS.heading }}>{value}</span>
+                    <span style={{ color: COLORS.heading, fontWeight: 700 }}>{value}</span>
                   </div>
                 ))}
                 <div
                   style={{
                     display: 'flex',
                     justifyContent: 'space-between',
-                    padding: '14px 0 4px',
-                    fontSize: 16,
-                    fontWeight: 700,
+                    padding: '20px 0 8px',
+                    fontSize: 18,
+                    fontWeight: 800,
                     color: COLORS.heading,
                   }}
                 >
-                  <span>{preview.amount_due >= 0 ? 'Amount Due' : 'Credit to Customer'}</span>
+                  <span>{preview.amount_due >= 0 ? t('planchange.amount_due') : t('planchange.credit_to_customer')}</span>
                   <span>₹{Math.abs(preview.amount_due)}</span>
                 </div>
 
                 {confirmError && (
-                  <div style={{ background: '#FEE2E2', color: '#991B1B', padding: 10, borderRadius: 8, fontSize: 13, marginTop: 12 }}>
+                  <div style={{ background: theme === 'dark' ? 'rgba(239, 68, 68, 0.16)' : '#FEE2E2', color: theme === 'dark' ? '#FCA5A5' : '#991B1B', padding: 12, borderRadius: 12, fontSize: 13, marginTop: 16, fontWeight: 600 }}>
                     {confirmError}
                   </div>
                 )}
@@ -341,28 +394,20 @@ export default function PlanChange() {
                   onClick={handleConfirmUpgrade}
                   disabled={confirming}
                   style={{
+                    ...neumorphicGoldButton,
                     width: '100%',
-                    marginTop: 16,
-                    padding: '12px 18px',
-                    background: COLORS.gold,
-                    border: 'none',
-                    borderRadius: 10,
-                    cursor: 'pointer',
-                    color: '#fff',
-                    fontWeight: 600,
-                    fontSize: 14,
-                    display: 'flex',
-                    alignItems: 'center',
+                    marginTop: 20,
                     justifyContent: 'center',
-                    gap: 8,
                   }}
+                  onMouseEnter={(e) => { if (!confirming) e.currentTarget.style.transform = 'translateY(-2px)'; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.transform = 'translateY(0)'; }}
                 >
-                  {confirming ? 'Confirming...' : 'Confirm Upgrade'} <ArrowRight size={15} />
+                  {confirming ? t('planchange.confirming') : t('planchange.confirm_upgrade')} <ArrowRight size={16} />
                 </button>
               </>
             ) : (
-              <div style={{ color: COLORS.muted, fontSize: 14 }}>
-                Select a subscription and a new plan to preview the proration.
+              <div style={{ color: COLORS.muted, fontSize: 15, fontWeight: 500 }}>
+                {t('planchange.select_prompt_preview')}
               </div>
             )}
           </div>
@@ -370,40 +415,40 @@ export default function PlanChange() {
           {/* Previous plan changes */}
           {selectedSub && (
             <div style={cardStyle}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
-                <History size={16} color={COLORS.goldDark} />
-                <h3 style={{ margin: 0, fontSize: 15, color: COLORS.heading }}>Previous Plan Changes</h3>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 20 }}>
+                <History size={18} color={COLORS.goldDark} />
+                <h3 style={{ margin: 0, fontSize: 16, color: COLORS.heading, fontWeight: 800 }}>{t('planchange.history_title')}</h3>
                 <button
                   onClick={() => fetchHistory(selectedSubId)}
-                  style={{ marginLeft: 'auto', background: 'none', border: 'none', cursor: 'pointer', color: COLORS.muted }}
+                  style={{ ...neumorphicButton, padding: 8, borderRadius: '50%', marginLeft: 'auto', width: 36, height: 36, display: 'flex', justifyContent: 'center', alignItems: 'center' }}
                 >
                   <RefreshCw size={14} />
                 </button>
               </div>
 
               {historyLoading ? (
-                <div style={{ color: COLORS.muted, fontSize: 13 }}>Loading...</div>
+                <div style={{ color: COLORS.muted, fontSize: 14, fontWeight: 500 }}>{t('common.loading')}</div>
               ) : history.length === 0 ? (
-                <div style={{ color: COLORS.muted, fontSize: 13 }}>No plan changes yet for this subscription.</div>
+                <div style={{ color: COLORS.muted, fontSize: 14, fontWeight: 500 }}>{t('planchange.no_history')}</div>
               ) : (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
                   {history.map((h) => (
                     <div
                       key={h.id}
                       style={{
-                        padding: '10px 12px',
-                        background: '#FBF7EF',
-                        borderRadius: 10,
-                        fontSize: 13,
+                        padding: '16px',
+                        borderRadius: 16,
+                        background: COLORS.bg,
+                        boxShadow: `inset 2px 2px 4px ${COLORS.shadowDark}, inset -2px -2px 4px ${COLORS.shadowLight}`,
                       }}
                     >
-                      <div style={{ fontWeight: 600, color: COLORS.heading }}>
+                      <div style={{ fontWeight: 700, color: COLORS.heading, fontSize: 14 }}>
                         {h.from_plan} → {h.to_plan}
                       </div>
-                      <div style={{ color: COLORS.muted, marginTop: 2 }}>
-                        {h.date ? new Date(h.date).toLocaleDateString() : '—'}
+                      <div style={{ color: COLORS.muted, marginTop: 4, fontSize: 13, fontWeight: 500 }}>
+                        {h.date ? new Date(h.date).toLocaleDateString() : t('planchange.no_date')}
                         {h.proration && (
-                          <> · Adjustment ₹{Math.abs(h.proration.amount_due)}</>
+                          <> · {t('planchange.adjustment')} ₹{Math.abs(h.proration.amount_due)}</>
                         )}
                       </div>
                     </div>

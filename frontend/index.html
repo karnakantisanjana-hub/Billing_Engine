@@ -2,12 +2,47 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+
+    <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>frontend</title>
+
+    <!-- Viewport: keep the existing desktop layout and scale it on mobile -->
+    <meta
+      name="viewport"
+      content="width=1200, initial-scale=1.0, viewport-fit=cover"
+    />
+
+    <!-- Page Information -->
+    <title>BillingEngine</title>
+    <meta
+      name="description"
+      content="Premium Subscription Billing Management System"
+    />
+
+    <!-- PWA -->
+    <link rel="manifest" href="/manifest.json" />
+    <meta name="theme-color" content="#C5A059" />
+
+    <!-- iOS / Safari -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta
+      name="apple-mobile-web-app-status-bar-style"
+      content="black-translucent"
+    />
+    <meta name="apple-mobile-web-app-title" content="BillingEngine" />
+    <link rel="apple-touch-icon" href="/icons/icon-192.png" />
+
+    <!-- Android / Chrome -->
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="application-name" content="BillingEngine" />
+
+    <!-- Windows -->
+    <meta name="msapplication-TileColor" content="#C5A059" />
   </head>
+
   <body>
     <div id="root"></div>
+
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>

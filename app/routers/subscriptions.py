@@ -120,18 +120,33 @@ def api_list_subscriptions(db: Session = Depends(get_db), user=Depends(require_u
 
 
 @router.patch("/subscriptions/{subscription_id}/status")
-def api_update_status(subscription_id: int, payload: StatusUpdate, db: Session = Depends(get_db), user=Depends(require_user)):
-    subscription = db.query(Subscription).filter(Subscription.id == subscription_id).first()
-    if not subscription:
-        raise HTTPException(status_code=404, detail="Subscription not found")
+def api_update_status(
+    subscription_id: int,
+    payload: StatusUpdate,
+    db: Session = Depends(get_db),
+    user=Depends(require_user),
+):
+    print("PATCH endpoint reached")
+    print("Subscription ID:", subscription_id)
+    print("Requested status:", payload.status)
 
-    try:
-        transition_subscription_status(subscription, payload.status)
-    except InvalidTransitionError as e:
-        raise HTTPException(status_code=400, detail=str(e))
-    generate_initial_invoice_if_active(db, subscription)
-    return {"message": "Status updated", "status": subscription.status}
+    subscription = db.query(Subscription).filter(
+        Subscription.id == subscription_id
+    ).first()
 
+    print("Current status:", subscription.status)
+
+    transition_subscription_status(subscription, payload.status)
+
+    print("New status:", subscription.status)
+
+    db.commit()
+    db.refresh(subscription)
+
+    return {
+        "message": "Status updated",
+        "status": subscription.status,
+    }
 
 @router.get("/subscriptions/{subscription_id}/change-plan/preview")
 def api_preview_change_plan(subscription_id: int, new_plan_id: int, db: Session = Depends(get_db), user=Depends(require_user)):

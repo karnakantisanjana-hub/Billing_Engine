@@ -20,12 +20,13 @@ STATUS_FAILED = HexColor("#DC2626")
 STATUS_REFUNDED = HexColor("#7C3AED")
 DIVIDER = HexColor("#E5DDD0")
 
+GST_RATE = 0.18
+
 
 def generate_pdf_invoice_stream(invoice: Invoice) -> io.BytesIO:
     buffer = io.BytesIO()
     p = canvas.Canvas(buffer, pagesize=letter)
-    w, h = letter 
-
+    w, h = letter
 
     p.setFillColor(CREAM_BG)
     p.rect(0, 0, w, h, fill=1, stroke=0)
@@ -48,6 +49,7 @@ def generate_pdf_invoice_stream(invoice: Invoice) -> io.BytesIO:
     p.setFont("Helvetica", 9)
     p.drawRightString(w - 45, h - 50, "123 Main Avenue, Tech Suite, CA")
     p.drawRightString(w - 45, h - 64, "contact@billingengine.com")
+
     card_y = h - 190
     p.setFillColor(WHITE)
     p.roundRect(35, card_y, w - 70, 80, 10, fill=1, stroke=0)
@@ -62,7 +64,6 @@ def generate_pdf_invoice_stream(invoice: Invoice) -> io.BytesIO:
     p.setFont("Helvetica", 10)
     p.drawString(55, card_y + 30, f"Issued: {invoice.invoice_date or 'N/A'}")
     p.drawString(55, card_y + 14, f"Due: {invoice.due_date or 'N/A'}")
-
 
     status = (invoice.status or "draft").upper()
     status_colors = {
@@ -121,8 +122,12 @@ def generate_pdf_invoice_stream(invoice: Invoice) -> io.BytesIO:
         ref = invoice.payments[0].payment_reference or "N/A"
         p.drawString(330, bt_y + 30, f"Reference: {ref}")
 
-    table_top = bt_y - 20
+    # ─── CALCULATE GST ───
+    subtotal = invoice.subtotal or 0.0
+    gst_amount = round(subtotal * GST_RATE, 2)
+    total_amount = round(subtotal + gst_amount, 2)
 
+    table_top = bt_y - 20
 
     p.setFillColor(GOLD_LIGHT)
     p.roundRect(35, table_top - 32, w - 70, 30, 6, fill=1, stroke=0)
@@ -133,10 +138,6 @@ def generate_pdf_invoice_stream(invoice: Invoice) -> io.BytesIO:
     p.drawCentredString(w / 2, table_top - 17, "Amount")
     p.drawRightString(w - 55, table_top - 17, "Total")
 
-    subtotal = invoice.subtotal or 0.0
-    tax_amount = invoice.tax_amount or 0.0
-    total_amount = invoice.total_amount or 0.0
-
     row1_y = table_top - 58
     p.setFillColor(TEXT_PRIMARY)
     p.setFont("Helvetica", 11)
@@ -146,9 +147,9 @@ def generate_pdf_invoice_stream(invoice: Invoice) -> io.BytesIO:
 
     row2_y = row1_y - 24
     p.setFont("Helvetica", 11)
-    p.drawString(55, row2_y, "VAT / GST (18%)")
-    p.drawCentredString(w / 2, row2_y, f"₹{tax_amount:,.2f}")
-    p.drawRightString(w - 55, row2_y, f"₹{tax_amount:,.2f}")
+    p.drawString(55, row2_y, f"VAT / GST ({int(GST_RATE * 100)}%)")
+    p.drawCentredString(w / 2, row2_y, f"₹{gst_amount:,.2f}")
+    p.drawRightString(w - 55, row2_y, f"₹{gst_amount:,.2f}")
     p.setStrokeColor(DIVIDER)
     p.setLineWidth(0.75)
     p.line(45, row2_y - 14, w - 45, row2_y - 14)
@@ -169,7 +170,6 @@ def generate_pdf_invoice_stream(invoice: Invoice) -> io.BytesIO:
     p.setFont("Helvetica", 8)
     p.drawCentredString(w / 2, 25, "Thank you for your business")
     p.drawCentredString(w / 2, 12, "support@billingengine.com  •  www.billingengine.com")
-
 
     p.setStrokeColor(GOLD_SOFT)
     p.setLineWidth(1.5)

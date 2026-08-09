@@ -15,6 +15,7 @@ router = APIRouter(prefix="/invoices", tags=["Invoices"])
 def generate_invoice_number():
     return f"INV-{uuid.uuid4().hex[:8].upper()}"
 
+
 @router.get("/enriched")
 def get_enriched_invoices(
     exclude_no_tax: bool = Query(False, description="Set True to filter out invoices without tax"),
@@ -70,9 +71,9 @@ def get_enriched_invoices(
 
 @router.get("/invoices")
 def list_invoices(db: Session = Depends(get_db)):
-    # Just return existing invoices — no creation
     invoices = db.query(Invoice).order_by(Invoice.created_at.desc()).all()
     return invoices
+
 
 @router.post("/generate/{subscription_id}", response_model=InvoiceOut)
 def generate_invoice(
@@ -141,19 +142,89 @@ def generate_invoice(
     db.add(invoice)
     db.commit()
     db.refresh(invoice)
-
-    db.add(
-        AuditLog(
-            entity_type="invoice",
-            entity_id=invoice.id,
-            action="generate",
-            new_value=f"Generated invoice {invoice.invoice_number} (Tax: {tax_amount})",
-            performed_by=user.username,
-        )
-    )
-    db.commit()
-
     return invoice
+
+
+@router.post("/generate-all")
+def generate_all_invoices(
+    db: Session = Depends(get_db),
+    user=Depends(require_user)
+):
+    """Generate invoices for all active/trial subscriptions."""
+    active_subs = db.query(Subscription).filter(
+        func.lower(Subscription.status).in_(["active", "trial"])
+    ).all()
+
+    created = []
+    skipped = 0
+
+    for sub in active_subs:
+        existing = db.query(Invoice).filter(
+            Invoice.subscription_id == sub.id,
+            Invoice.status == "unpaid"
+        ).first()
+        if existing:
+            skipped += 1
+            continue
+
+        customer = db.query(Customer).filter(Customer.id == sub.customer_id).first()
+        plan = db.query(Plan).filter(Plan.id == sub.plan_id).first()
+        if not customer or not plan:
+            continue
+
+        try:
+            subtotal = float(plan.price)
+        except (TypeError, AttributeError):
+            continue
+
+        gst = round(subtotal * 0.18, 2)
+        total = round(subtotal + gst, 2)
+
+        invoice = Invoice(
+            invoice_number=generate_invoice_number(),
+            subscription_id=sub.id,
+            customer_id=customer.id,
+            invoice_date=date.today(),
+            due_date=date.today() + timedelta(days=7),
+            subtotal=subtotal,
+            tax_amount=gst,
+            total_amount=total,
+            status="unpaid",
+        )
+        db.add(invoice)
+        db.commit()
+
+        created.append({
+            "invoice_number": invoice.invoice_number,
+            "customer": customer.name,
+            "plan": plan.name,
+            "amount": total,
+        })
+
+    # Audit log (matching existing pattern with performed_by)
+    try:
+        db.add(AuditLog(
+            entity_type="invoice",
+            entity_id=None,
+            action="generate_invoices",
+            performed_by=user.username,
+            details=f"Generated {len(created)} invoices, skipped {skipped} (already unpaid)"
+        ))
+        db.commit()
+    except Exception:
+        db.commit()
+
+    return {
+        "message": f"Generated {len(created)} invoices (skipped {skipped})",
+        "invoices": created,
+        "total_generated": len(created),
+        "total_skipped": skipped,
+    }
+
+
+# ─────────────────────────────────────────────────────────────────
+# Dynamic "/{invoice_id}" routes MUST come after all static routes above.
+# ─────────────────────────────────────────────────────────────────
 
 @router.get("/{invoice_id}", response_model=InvoiceOut)
 def get_invoice(invoice_id: int, db: Session = Depends(get_db), user=Depends(require_user)):
@@ -199,4 +270,3 @@ def delete_invoice(invoice_id: int, db: Session = Depends(get_db), user=Depends(
     db.add(AuditLog(entity_type="invoice", entity_id=invoice_id, action="delete", performed_by=user.username))
     db.commit()
     return {"message": "Invoice deleted"}
-

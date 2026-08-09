@@ -151,7 +151,7 @@ def delete_payment(payment_id: int, db: Session = Depends(get_db), user=Depends(
         raise HTTPException(status_code=404, detail="Payment not found")
 
     db.delete(payment)
-    db.commit()
+    db.commit() 
 
     db.add(AuditLog(entity_type="payment", entity_id=payment_id, action="delete", performed_by=user.username))
     db.commit()

@@ -180,3 +180,44 @@ class Refund(Base):
 
     invoice = relationship("Invoice", back_populates="refunds")
     subscription = relationship("Subscription", back_populates="refunds")
+
+class Language(Base):
+    __tablename__ = "languages"
+
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    code = Column(String(10), unique=True, nullable=False)       # e.g. "hi", "ta", "en"
+    name = Column(String(100), nullable=False)                    # e.g. "Hindi"
+    native_name = Column(String(100), nullable=False)             # e.g. "हिन्दी"
+    flag_emoji = Column(String(10), nullable=True)                # e.g. "🇮🇳"
+    is_active = Column(Boolean, default=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    translations = relationship("Translation", back_populates="language")
+
+
+class Translation(Base):
+    __tablename__ = "translations"
+
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    language_code = Column(String(10), ForeignKey("languages.code"), nullable=False)
+    key = Column(String(255), nullable=False)                      # e.g. "dashboard.title"
+    value = Column(Text, nullable=False)                           # e.g. "डैशबोर्ड"
+    category = Column(String(100), nullable=True)                  # e.g. "dashboard", "invoices"
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    language = relationship("Language", back_populates="translations")
+
+
+class UserPreference(Base):
+    __tablename__ = "user_preferences"
+
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    language_code = Column(String(10), ForeignKey("languages.code"), default="en", nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+
+# Add relationship to User model
+User.preferences = relationship("UserPreference", back_populates="user", uselist=False)
+UserPreference.user = relationship("User", back_populates="preferences")

@@ -45,8 +45,62 @@ export default function Landing({ setCurrentPage }) {
     { value: "24/7", label: "Support" },
   ];
 
+  const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
+
+  const responsiveStyles = (
+    <style>{`
+      * { box-sizing: border-box; }
+      html, body { overflow-x: hidden; max-width: 100vw; }
+
+      .nav-links { display: flex; align-items: center; gap: 28px; }
+      .nav-hamburger { display: none; }
+      .mobile-menu-panel { display: none; }
+
+      @media (max-width: 860px) {
+        .nav-links { display: none; }
+        .nav-hamburger { display: flex; }
+        nav { padding: 0 16px !important; }
+        .mobile-menu-panel.open {
+          display: flex;
+          flex-direction: column;
+          position: fixed;
+          top: 70px;
+          left: 0;
+          right: 0;
+          background: #FDFBF7;
+          border-bottom: 1px solid #F0E6D2;
+          padding: 16px 20px 24px;
+          gap: 4px;
+          z-index: 99;
+          box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+        }
+
+        section { padding-left: 20px !important; padding-right: 20px !important; }
+
+        .hero-section { padding-top: 110px !important; padding-bottom: 60px !important; }
+        .hero-title { font-size: 32px !important; }
+        .hero-desc { font-size: 15px !important; }
+        .hero-buttons { flex-direction: column !important; width: 100%; }
+        .hero-buttons > * { width: 100%; text-align: center; }
+
+        .stats-bar { flex-wrap: wrap !important; gap: 20px 32px !important; padding: 24px 16px !important; margin: 20px 16px !important; }
+
+        .features-grid { grid-template-columns: 1fr !important; gap: 16px !important; }
+        .pricing-grid { grid-template-columns: 1fr !important; gap: 16px !important; }
+
+        .footer-inner { flex-direction: column !important; gap: 28px !important; }
+      }
+
+      @media (max-width: 420px) {
+        .hero-title { font-size: 26px !important; }
+        .stat-value { font-size: 24px !important; }
+      }
+    `}</style>
+  );
+
   return (
-    <div style={{ background: "#FDFBF7", color: "#2B2420", fontFamily: "'Segoe UI', system-ui, sans-serif", overflowX: "hidden" }}>
+    <div style={{ background: "#FDFBF7", color: "#2B2420", fontFamily: "'Segoe UI', system-ui, sans-serif", overflowX: "hidden", maxWidth: "100vw" }}>
+      {responsiveStyles}
 
       {/* ─── NAVBAR ─── */}
       <nav style={{
@@ -59,7 +113,8 @@ export default function Landing({ setCurrentPage }) {
           <span style={{ fontSize: 22, fontWeight: 700, color: "#C5A059", letterSpacing: 0.5 }}>BillingEngine</span>
           <span style={{ fontSize: 14, fontWeight: 400, color: "#2B2420", marginLeft: 8 }}>SaaS Billing</span>
         </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 28 }}>
+
+        <div className="nav-links">
           <a href="#features" style={{ fontSize: 14, fontWeight: 500, color: "#7A7A7A", textDecoration: "none" }}>Features</a>
           <a href="#pricing" style={{ fontSize: 14, fontWeight: 500, color: "#7A7A7A", textDecoration: "none" }}>Pricing</a>
           <button
@@ -79,24 +134,69 @@ export default function Landing({ setCurrentPage }) {
             Get Started
           </button>
         </div>
+
+        {/* Hamburger — mobile only */}
+        <button
+          className="nav-hamburger"
+          onClick={() => setMobileMenuOpen((v) => !v)}
+          aria-label="Toggle menu"
+          style={{
+            alignItems: "center", justifyContent: "center",
+            width: 40, height: 40, borderRadius: 8,
+            background: "transparent", border: "1.5px solid #F0E6D2",
+            fontSize: 18, cursor: "pointer", color: "#2B2420",
+          }}
+        >
+          {mobileMenuOpen ? "✕" : "☰"}
+        </button>
       </nav>
 
+      {/* Mobile dropdown menu */}
+      <div className={`mobile-menu-panel${mobileMenuOpen ? " open" : ""}`}>
+        <a
+          href="#features"
+          onClick={() => setMobileMenuOpen(false)}
+          style={{ fontSize: 15, fontWeight: 500, color: "#2B2420", textDecoration: "none", padding: "12px 4px", borderBottom: "1px solid #F0E6D2" }}
+        >
+          Features
+        </a>
+        <a
+          href="#pricing"
+          onClick={() => setMobileMenuOpen(false)}
+          style={{ fontSize: 15, fontWeight: 500, color: "#2B2420", textDecoration: "none", padding: "12px 4px", borderBottom: "1px solid #F0E6D2" }}
+        >
+          Pricing
+        </a>
+        <button
+          onClick={() => { setMobileMenuOpen(false); setCurrentPage && setCurrentPage("signin"); }}
+          style={{ margin: "12px 0 8px", padding: "12px", borderRadius: 10, fontSize: 15, fontWeight: 600, background: "transparent", color: "#2B2420", border: "1.5px solid #F0E6D2", cursor: "pointer" }}
+        >
+          Sign In
+        </button>
+        <button
+          onClick={() => { setMobileMenuOpen(false); setCurrentPage && setCurrentPage("signup"); }}
+          style={{ padding: "12px", borderRadius: 10, fontSize: 15, fontWeight: 600, background: "#C5A059", color: "#fff", border: "none", cursor: "pointer" }}
+        >
+          Get Started
+        </button>
+      </div>
+
       {/* ─── HERO ─── */}
-      <section style={{ padding: "140px 40px 80px", textAlign: "center", maxWidth: 900, margin: "0 auto" }}>
+      <section className="hero-section" style={{ padding: "140px 40px 80px", textAlign: "center", maxWidth: 900, margin: "0 auto" }}>
         <span style={{
           display: "inline-block", background: "#F5ECD8", color: "#C5A059",
           fontSize: 13, fontWeight: 600, padding: "6px 16px", borderRadius: 20, marginBottom: 24,
         }}>
           Subscription Billing Platform
         </span>
-        <h1 style={{ fontSize: 52, fontWeight: 800, lineHeight: 1.15, marginBottom: 20 }}>
+        <h1 className="hero-title" style={{ fontSize: 52, fontWeight: 800, lineHeight: 1.15, marginBottom: 20 }}>
           Manage Subscriptions,<br />
           <em style={{ fontStyle: "normal", color: "#C5A059" }}>Billing & Invoices</em> Effortlessly
         </h1>
-        <p style={{ fontSize: 18, color: "#7A7A7A", maxWidth: 600, margin: "0 auto 36px", lineHeight: 1.7 }}>
+        <p className="hero-desc" style={{ fontSize: 18, color: "#7A7A7A", maxWidth: 600, margin: "0 auto 36px", lineHeight: 1.7 }}>
           A complete billing engine for SaaS businesses. Automate subscriptions, track payments, generate invoices, and manage customer plans — all in one place.
         </p>
-        <div style={{ display: "flex", gap: 14, justifyContent: "center" }}>
+        <div className="hero-buttons" style={{ display: "flex", gap: 14, justifyContent: "center" }}>
           <button
             onClick={() => setCurrentPage && setCurrentPage("signup")}
             style={{ padding: "14px 32px", borderRadius: 12, fontSize: 16, fontWeight: 600, background: "#C5A059", color: "#fff", border: "none", cursor: "pointer", transition: "all 0.2s" }}
@@ -117,7 +217,7 @@ export default function Landing({ setCurrentPage }) {
       </section>
 
       {/* ─── STATS BAR ─── */}
-      <div style={{
+      <div className="stats-bar" style={{
         display: "flex", justifyContent: "center", gap: 60,
         padding: 40, margin: "20px 40px",
         background: "#fff", borderRadius: 16,
@@ -126,7 +226,7 @@ export default function Landing({ setCurrentPage }) {
       }}>
         {stats.map((s) => (
           <div key={s.label} style={{ textAlign: "center" }}>
-            <div style={{ fontSize: 32, fontWeight: 800, color: "#C5A059" }}>{s.value}</div>
+            <div className="stat-value" style={{ fontSize: 32, fontWeight: 800, color: "#C5A059" }}>{s.value}</div>
             <div style={{ fontSize: 13, color: "#7A7A7A", marginTop: 4 }}>{s.label}</div>
           </div>
         ))}
@@ -140,7 +240,7 @@ export default function Landing({ setCurrentPage }) {
           From subscription management to invoice generation, we've got every billing workflow covered.
         </p>
 
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 24 }}>
+        <div className="features-grid" style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 24 }}>
           {features.map((f) => (
             <div
               key={f.title}
@@ -174,7 +274,7 @@ export default function Landing({ setCurrentPage }) {
             Choose the plan that fits your business. Upgrade or downgrade anytime.
           </p>
 
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 24, marginTop: 50 }}>
+          <div className="pricing-grid" style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 24, marginTop: 50 }}>
             {plans.map((p) => (
               <div
                 key={p.name}
@@ -256,7 +356,7 @@ export default function Landing({ setCurrentPage }) {
 
       {/* ─── FOOTER ─── */}
       <footer style={{ background: "#181F2C", color: "#9CA3AF", padding: "50px 40px 30px" }}>
-        <div style={{ maxWidth: 1100, margin: "0 auto", display: "flex", justifyContent: "space-between", alignItems: "start" }}>
+        <div className="footer-inner" style={{ maxWidth: 1100, margin: "0 auto", display: "flex", justifyContent: "space-between", alignItems: "start" }}>
           <div>
             <div style={{ fontSize: 20, fontWeight: 700, color: "#C5A059", marginBottom: 8 }}>BillingEngine</div>
             <p style={{ fontSize: 13, maxWidth: 280, lineHeight: 1.6 }}>

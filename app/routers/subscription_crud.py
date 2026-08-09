@@ -177,3 +177,33 @@ def cancel_subscription(subscription_id: int, db: Session = Depends(get_db), use
     db.commit()
     return sub
 
+@router.get("/{subscription_id}/history")
+def get_subscription_history(subscription_id: int, db: Session = Depends(get_db), user=Depends(require_user)):
+    sub = db.query(Subscription).filter(Subscription.id == subscription_id).first()
+    if not sub:
+        raise HTTPException(status_code=404, detail="Subscription not found")
+
+    logs = (
+        db.query(AuditLog)
+        .filter(AuditLog.entity_type == "subscription", AuditLog.entity_id == subscription_id)
+        .order_by(AuditLog.id.asc())
+        .all()
+    )
+
+    changes = []
+    for log in logs:
+        if log.action == "change_plan":
+            changes.append({
+                "date": log.created_at.isoformat() if log.created_at else None,
+                "old_value": log.old_value,
+                "new_value": log.new_value,
+                "performed_by": log.performed_by
+            })
+
+    current_plan = db.query(Plan).filter(Plan.id == sub.plan_id).first()
+
+    return {
+        "subscription_id": sub.id,
+        "current_plan": current_plan.name if current_plan else None,
+        "plan_changes": changes
+    }
