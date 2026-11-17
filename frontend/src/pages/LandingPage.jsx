@@ -1,6 +1,8 @@
+﻿import { useNavigate } from "react-router-dom";
 import React from "react";
 
-export default function Landing({ setCurrentPage }) {
+export default function Landing() {
+  const navigate = useNavigate();
 
   const features = [
     { icon: "🔄", title: "Subscription Management", desc: "Create, upgrade, downgrade, and cancel subscriptions with automated billing cycles and plan changes." },
@@ -118,7 +120,7 @@ export default function Landing({ setCurrentPage }) {
           <a href="#features" style={{ fontSize: 14, fontWeight: 500, color: "#7A7A7A", textDecoration: "none" }}>Features</a>
           <a href="#pricing" style={{ fontSize: 14, fontWeight: 500, color: "#7A7A7A", textDecoration: "none" }}>Pricing</a>
           <button
-            onClick={() => setCurrentPage && setCurrentPage("signin")}
+            onClick={() => navigate("/signin")}
             style={{ padding: "10px 24px", borderRadius: 10, fontSize: 14, fontWeight: 600, background: "transparent", color: "#2B2420", border: "1.5px solid #F0E6D2", cursor: "pointer", transition: "all 0.2s" }}
             onMouseEnter={(e) => { e.currentTarget.style.borderColor = "#C5A059"; e.currentTarget.style.color = "#C5A059"; }}
             onMouseLeave={(e) => { e.currentTarget.style.borderColor = "#F0E6D2"; e.currentTarget.style.color = "#2B2420"; }}
@@ -126,7 +128,7 @@ export default function Landing({ setCurrentPage }) {
             Sign In
           </button>
           <button
-            onClick={() => setCurrentPage && setCurrentPage("signup")}
+            onClick={() => navigate("/signup")}
             style={{ padding: "10px 24px", borderRadius: 10, fontSize: 14, fontWeight: 600, background: "#C5A059", color: "#fff", border: "none", cursor: "pointer", transition: "all 0.2s" }}
             onMouseEnter={(e) => { e.currentTarget.style.background = "#D4B76A"; }}
             onMouseLeave={(e) => { e.currentTarget.style.background = "#C5A059"; }}
@@ -168,13 +170,13 @@ export default function Landing({ setCurrentPage }) {
           Pricing
         </a>
         <button
-          onClick={() => { setMobileMenuOpen(false); setCurrentPage && setCurrentPage("signin"); }}
+          onClick={() => { setMobileMenuOpen(false); navigate("/signin"); }}
           style={{ margin: "12px 0 8px", padding: "12px", borderRadius: 10, fontSize: 15, fontWeight: 600, background: "transparent", color: "#2B2420", border: "1.5px solid #F0E6D2", cursor: "pointer" }}
         >
           Sign In
         </button>
         <button
-          onClick={() => { setMobileMenuOpen(false); setCurrentPage && setCurrentPage("signup"); }}
+          onClick={() => { setMobileMenuOpen(false); navigate("/signup"); }}
           style={{ padding: "12px", borderRadius: 10, fontSize: 15, fontWeight: 600, background: "#C5A059", color: "#fff", border: "none", cursor: "pointer" }}
         >
           Get Started
@@ -198,7 +200,7 @@ export default function Landing({ setCurrentPage }) {
         </p>
         <div className="hero-buttons" style={{ display: "flex", gap: 14, justifyContent: "center" }}>
           <button
-            onClick={() => setCurrentPage && setCurrentPage("signup")}
+            onClick={() => navigate("/signup")}
             style={{ padding: "14px 32px", borderRadius: 12, fontSize: 16, fontWeight: 600, background: "#C5A059", color: "#fff", border: "none", cursor: "pointer", transition: "all 0.2s" }}
             onMouseEnter={(e) => { e.currentTarget.style.background = "#D4B76A"; e.currentTarget.style.transform = "translateY(-2px)"; }}
             onMouseLeave={(e) => { e.currentTarget.style.background = "#C5A059"; e.currentTarget.style.transform = "translateY(0)"; }}
@@ -310,7 +312,7 @@ export default function Landing({ setCurrentPage }) {
                   ))}
                 </ul>
                 <button
-                  onClick={() => setCurrentPage && setCurrentPage("signup")}
+                  onClick={() => navigate("/signup")}
                   style={{
                     display: "block", width: "100%", padding: 14, borderRadius: 12,
                     fontSize: 15, fontWeight: 600, textAlign: "center", cursor: "pointer",
@@ -345,7 +347,7 @@ export default function Landing({ setCurrentPage }) {
           Join hundreds of businesses already using BillingEngine to manage their subscriptions and revenue.
         </p>
         <button
-          onClick={() => setCurrentPage && setCurrentPage("signup")}
+          onClick={() => navigate("/signup")}
           style={{ padding: "14px 32px", borderRadius: 12, fontSize: 16, fontWeight: 600, background: "#C5A059", color: "#fff", border: "none", cursor: "pointer", transition: "all 0.2s" }}
           onMouseEnter={(e) => { e.currentTarget.style.background = "#D4B76A"; e.currentTarget.style.transform = "translateY(-2px)"; }}
           onMouseLeave={(e) => { e.currentTarget.style.background = "#C5A059"; e.currentTarget.style.transform = "translateY(0)"; }}

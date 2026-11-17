@@ -1,8 +1,10 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useAuth, API_BASE_URL } from "../context/AuthContext";
 
-export default function SignIn({ setCurrentPage }) {
+export default function SignIn() {
   const { login } = useAuth();
+  const navigate = useNavigate();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -26,9 +28,7 @@ export default function SignIn({ setCurrentPage }) {
 
       if (response.ok) {
         login(data.access_token);
-        if (setCurrentPage) {
-          setCurrentPage("dashboard");
-        }
+        navigate("/dashboard", { replace: true });
       } else {
         setError(data.detail || "Invalid email or password");
       }
@@ -49,7 +49,6 @@ export default function SignIn({ setCurrentPage }) {
     >
       {/* ─── NEUMORPHIC GLOBAL STYLES ─── */}
       <style>{`
-        /* Right Panel Neumorphic Inputs */
         .neu-input {
           width: 100%;
           padding: 14px 16px;
@@ -72,7 +71,6 @@ export default function SignIn({ setCurrentPage }) {
           box-shadow: inset 3px 3px 6px rgba(239, 68, 68, 0.3), inset -3px -3px 6px #ffffff !important;
         }
 
-        /* Right Panel Neumorphic Primary Button */
         .neu-submit-btn {
           width: 100%;
           padding: 14px;
@@ -100,7 +98,6 @@ export default function SignIn({ setCurrentPage }) {
           transform: translateY(1px);
         }
 
-        /* Feature Card Neumorphic Inset/Extruded Style */
         .neu-left-card {
           display: flex;
           align-items: center;
@@ -114,7 +111,6 @@ export default function SignIn({ setCurrentPage }) {
           box-shadow: 4px 4px 8px #0d1118, -4px -4px 8px #232d40;
         }
 
-        /* Toggle Button Inset Hover */
         .neu-toggle-btn {
           position: absolute;
           right: 12px;
@@ -164,7 +160,6 @@ export default function SignIn({ setCurrentPage }) {
         />
 
         <div style={{ zIndex: 1, maxWidth: 360, width: "100%" }}>
-          {/* Neumorphic Brand Container */}
           <div
             style={{
               padding: "20px 24px",
@@ -242,9 +237,9 @@ export default function SignIn({ setCurrentPage }) {
           background: "#EFE8DB",
         }}
       >
-        <div 
-          style={{ 
-            width: "100%", 
+        <div
+          style={{
+            width: "100%",
             maxWidth: 400,
             padding: "40px 32px",
             borderRadius: "24px",
@@ -324,7 +319,15 @@ export default function SignIn({ setCurrentPage }) {
                 </button>
               </div>
               {error && (
-                <div style={{ fontSize: 12, color: "#EF4444", marginTop: 8, paddingLeft: 4, fontWeight: 500 }}>
+                <div
+                  style={{
+                    fontSize: 12,
+                    color: "#EF4444",
+                    marginTop: 8,
+                    paddingLeft: 4,
+                    fontWeight: 500,
+                  }}
+                >
                   ⚠️ {error}
                 </div>
               )}
@@ -341,19 +344,33 @@ export default function SignIn({ setCurrentPage }) {
             </button>
           </form>
 
-          <div style={{ textAlign: "center", marginTop: 24, fontSize: 13, color: "#7A7A7A" }}>
+          <div
+            style={{
+              textAlign: "center",
+              marginTop: 24,
+              fontSize: 13,
+              color: "#7A7A7A",
+            }}
+          >
             Don't have an account?{" "}
             <span
-              onClick={() => setCurrentPage && setCurrentPage("signup")}
+              onClick={() => navigate("/signup")}
               style={{ color: "#C5A059", fontWeight: 700, cursor: "pointer" }}
             >
               Create one
             </span>
           </div>
 
-          <div style={{ textAlign: "center", marginTop: 12, fontSize: 13, color: "#7A7A7A" }}>
+          <div
+            style={{
+              textAlign: "center",
+              marginTop: 12,
+              fontSize: 13,
+              color: "#7A7A7A",
+            }}
+          >
             <span
-              onClick={() => setCurrentPage && setCurrentPage("landing")}
+              onClick={() => navigate("/")}
               style={{ color: "#C5A059", fontWeight: 700, cursor: "pointer" }}
             >
               ← Back to Home

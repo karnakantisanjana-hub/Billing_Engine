@@ -1,7 +1,9 @@
+﻿import { useNavigate } from "react-router-dom";
 import React, { useState } from "react";
 import { useAuth, API_BASE_URL } from "../context/AuthContext";
 
-export default function SignUp({ setCurrentPage }) {
+export default function SignUp() {
+  const navigate = useNavigate();
   const { login } = useAuth();
   const [formData, setFormData] = useState({
     fullName: "",
@@ -68,10 +70,10 @@ export default function SignUp({ setCurrentPage }) {
       if (response.ok) {
         if (data.access_token) {
           login(data.access_token);
-          if (setCurrentPage) setCurrentPage("dashboard");
+          navigate("/dashboard", { replace: true });
         } else {
           alert("Account created successfully! Please sign in.");
-          if (setCurrentPage) setCurrentPage("signin");
+          navigate("/signin");
         }
       } else {
         alert(data.detail || data.message || "Signup failed. Please try again.");
@@ -210,7 +212,7 @@ export default function SignUp({ setCurrentPage }) {
         <div className="signup-card" style={{ width: "100%", maxWidth: 440, padding: "36px 32px", borderRadius: "24px", background: "#EFE8DB", boxShadow: "8px 8px 18px #c5beaf, -8px -8px 18px #ffffff" }}>
           <div style={{ marginBottom: 24, textAlign: "center" }}>
             <h1 style={{ fontSize: 26, fontWeight: 800, color: "#2B2420", marginBottom: 8 }}>Create Account</h1>
-            <p style={{ fontSize: 14, color: "#7A7A7A" }}>Already have an account? <span onClick={() => setCurrentPage("signin")} style={{ color: "#C5A059", fontWeight: 700, cursor: "pointer" }}>Sign in</span></p>
+            <p style={{ fontSize: 14, color: "#7A7A7A" }}>Already have an account? <span onClick={() => navigate("/signin")} style={{ color: "#C5A059", fontWeight: 700, cursor: "pointer" }}>Sign in</span></p>
           </div>
 
           <form onSubmit={handleSubmit}>
@@ -245,10 +247,11 @@ export default function SignUp({ setCurrentPage }) {
             <button type="submit" disabled={loading} className="neu-submit-btn" style={{ opacity: loading ? 0.7 : 1 }}>{loading ? "Creating Account..." : "Create Account"}</button>
           </form>
           <div style={{ textAlign: "center", marginTop: 20, fontSize: 13, color: "#7A7A7A" }}>
-            <span onClick={() => setCurrentPage("landing")} style={{ color: "#C5A059", fontWeight: 700, cursor: "pointer" }}>← Back to Home</span>
+            <span onClick={() => navigate("/")} style={{ color: "#C5A059", fontWeight: 700, cursor: "pointer" }}>← Back to Home</span>
           </div>
         </div>
       </div>
     </div>
   );
 }
+

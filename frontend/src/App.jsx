@@ -14,7 +14,10 @@ import AuditLogs from './pages/AuditLogs.jsx';
 import Profile from './pages/Profile.jsx';
 import Landing from './pages/LandingPage.jsx';
 import SignUp from './pages/SignUp.jsx';
+import CustomerAuth from './pages/CustomerAuth.jsx';
+import CustomerDashboard from './pages/CustomerDashboard.jsx';
 import { ThemeProvider } from './context/ThemeContext.jsx';
+import { Routes, Route } from 'react-router-dom';
 
 // Global scrollbar styling so every scrollable region in the app (sidebar nav
 // and main content) shares one thin, theme-colored scrollbar instead of each
@@ -172,7 +175,20 @@ export default function App() {
   return (
     <ThemeProvider>
       <AuthProvider>
-        <MainLayout />
+        <Routes>
+          {/* Public routes for admin */}
+          <Route path="/signin" element={<SignIn />} />
+          <Route path="/signup" element={<SignUp />} />
+          <Route path="/" element={<Landing />} />
+
+          {/* Customer portal routes */}
+          <Route path="/customer/login" element={<CustomerAuth isSignUp={false} />} />
+          <Route path="/customer/signup" element={<CustomerAuth isSignUp={true} />} />
+          <Route path="/customer/dashboard" element={<CustomerDashboard />} />
+
+          {/* Admin routes - protected by MainLayout */}
+          <Route path="/*" element={<MainLayout />} />
+        </Routes>
       </AuthProvider>
     </ThemeProvider>
   );

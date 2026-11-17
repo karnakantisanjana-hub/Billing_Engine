@@ -1,4 +1,4 @@
-from pydantic import BaseModel, ConfigDict
+﻿from pydantic import BaseModel, ConfigDict, field_validator
 from typing import Optional
 
 from datetime import date, datetime
@@ -41,6 +41,15 @@ class PlanOut(BaseModel):
     is_archived: bool
 
     model_config = ConfigDict(from_attributes=True)
+
+    @field_validator("features", mode="before")
+    @classmethod
+    def features_list_to_dict(cls, v):
+        if v is None or v == []:
+            return {}
+        if isinstance(v, list):
+            return {str(item): True for item in v}
+        return v
 
 
 # ---------- CUSTOMER ----------

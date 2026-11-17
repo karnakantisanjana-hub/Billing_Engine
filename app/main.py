@@ -10,12 +10,11 @@ from app.database import get_db
 from app.auth import hash_password, verify_password, create_access_token, get_current_user, require_user
 from app.pdf_utils import generate_pdf_invoice_stream
 from app.models import Customer, Subscription, Invoice, User, Plan, Payment, Language, Translation, UserPreference
-from starlette.middleware.cors import CORSMiddleware
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi import UploadFile, File, Body
 import shutil
 import time
 from app.routers import dashboard_metrics
-from fastapi.middleware.cors import CORSMiddleware
 
 from app.routers import (
     plans,
@@ -26,6 +25,8 @@ from app.routers import (
     refunds,
     invoice_management,
     billing_cycles,
+    customer_auth,
+    customer_portal,
 )
 
 # ─── Languages Router ──────────────────────────────────────────────────────────
@@ -72,7 +73,18 @@ def custom_openapi():
             "bearerFormat": "JWT",
         }
     }
-    skip_paths = ["/api/auth/login", "/health", "/openapi.json", "/docs", "/redoc"]
+    skip_paths = [
+        "/api/auth/login",
+        "/api/v1/auth/login",
+        "/api/v1/auth/signup",
+        "/api/v1/customer/auth/login",
+        "/api/v1/customer/auth/register",
+        "/api/v1/customer/auth/refresh",
+        "/health",
+        "/openapi.json",
+        "/docs",
+        "/redoc"
+    ]
     for path in openapi_schema.get("paths", {}):
         for method in openapi_schema["paths"][path]:
             operation = openapi_schema["paths"][path][method]
@@ -93,6 +105,7 @@ FRONTEND_URLS = [url.strip() for url in FRONTEND_URLS]
 
 app.add_middleware(
     CORSMiddleware,
+    allow_origins=FRONTEND_URLS,
     allow_origin_regex=r"http://(localhost|127\.0\.0\.1|10\.\d+\.\d+\.\d+|172\.(1[6-9]|2\d|3[0-1])\.\d+\.\d+|192\.168\.\d+\.\d+):\d+",
     allow_credentials=True,
     allow_methods=["*"],
@@ -118,7 +131,9 @@ app.include_router(payments.router)
 app.include_router(refunds.router)
 app.include_router(dashboard_metrics.router)
 app.include_router(invoice_management.router)
-app.include_router(plans.router)
+app.include_router(customer_auth.router)
+app.include_router(customer_portal.router)
+app.include_router(plans.router, prefix="/api/v1")
 
 
 if LANGUAGES_ROUTER_AVAILABLE:
@@ -133,7 +148,6 @@ if OPTIONAL_ROUTERS_AVAILABLE:
 # ============================================================================
 # API ENDPOINTS
 # ============================================================================
-app.include_router(plans.router, prefix="/api/v1")
 
 @app.get("/health")
 async def health_check():

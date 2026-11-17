@@ -1,35 +1,31 @@
+# Python
+__pycache__/
+*.pyc
+venv/
+.venv/
+
 # Environment variables
 .env
 .env.*
-
-# Python cache
-__pycache__/
-*.pyc
-*.pyo
-*.pyd
-
-# Virtual environments
-venv/
-.venv/
-env/
+!.env.example
 
 # Node
 node_modules/
-
-# Frontend build files
 dist/
-dev-dist/
-
-# Uploaded files
-app/static/uploads/
-
-# Archives
-*.zip
 
 # IDE
 .vscode/
-.idea/
+
+# Logs
+*.log
+
+# Database backups
+*.sql
+*.dump
 
 # OS
 .DS_Store
 Thumbs.db
+
+frontend/dev-dist/
+frontend/src.zip
